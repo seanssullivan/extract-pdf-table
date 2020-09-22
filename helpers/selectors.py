@@ -16,21 +16,21 @@ def extract_characters_from_line(pdf_line):
 def extract_elements_from_pages(pdf_pages):
   elements = []
   for pdf_page in pdf_pages:
-    elements += extract_elements_from_page(pdf_page)
+    elements.extend(extract_elements_from_page(pdf_page))
   return elements
 
 
 def extract_lines_from_elements(pdf_elements):
   lines = []
   for pdf_element in pdf_elements:
-    lines += extract_lines_from_element(pdf_element)
+    lines.extend(extract_lines_from_element(pdf_element))
   return lines
 
 
 def extract_characters_from_lines(pdf_lines):
   characters = []
   for pdf_line in pdf_lines:
-    characters += extract_characters_from_line(pdf_line)
+    characters.extend(extract_characters_from_line(pdf_line))
   return characters
   
 
@@ -69,5 +69,8 @@ def extract_characters_from_elements(pdf_elements):
 
 
 def extract_characters_from_pages(pages):
-  characters = map(lambda page: extract_characters_from_page(page), pages)
-  return list(characters)
+  characters = []
+  for page in pages:
+    chars = extract_characters_from_page(page)
+    characters.extend(chars)
+  return characters
