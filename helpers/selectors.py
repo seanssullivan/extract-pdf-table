@@ -1,5 +1,6 @@
 from pdfminer.layout import LTTextContainer, LTChar
 
+
 def extract_elements_from_page(pdf_page):
   return [element for element in pdf_page if isinstance(element, LTTextContainer)]
 

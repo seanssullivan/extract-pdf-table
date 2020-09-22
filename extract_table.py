@@ -1,93 +1,41 @@
+from io import BytesIO
 import math
-import statistics
+import tempfile
 from tqdm import tqdm
-from pdfminer.high_level import extract_pages
-from helpers import average_height, average_width, extract_characters_from_pages, simplify_characters, within_margin, x_axis_center, y_axis_center
+
+from pdf2image import convert_from_path
+from pdfminer.high_level import extract_pages, extract_text
+from pdfminer.layout import LAParams
+import pytesseract
+
+from helpers.dimensions import average_height, average_width
+from helpers.layout import sort_characters_into_rows, sort_characters_into_columns
+from helpers.representation import simplify_characters
+from helpers.selectors import extract_characters_from_page
 
 
-def extract_text_from_pdf(file_name, page_numbers=None):
-  print(f"Extracting {len(page_numbers)} pages from {file_name}...")
-  pages = extract_pages(file_name, page_numbers=page_numbers)
-  print(f"Extracting text from pages...")
-  character_pages = extract_characters_from_pages(tqdm(pages))
-
-  grid = []
-  for characters in tqdm(character_pages):
-    chars = simplify_characters(characters)
-
-    y_margin = math.ceil(average_height(chars) / 2)
-    rows = sort_characters_into_rows(chars, y_margin)
-
-    x_margin = math.ceil(average_width(chars) / 2)
-    grid += sort_characters_into_columns(rows, x_margin)
-
-  return grid
-
-
-def calculate_row_positions(chars, margin):
-  positions = set(map(lambda char: round(y_axis_center(char) / margin) * margin, chars))
-  return sorted(list(positions), reverse=True)
-
-def sort_characters_into_rows(chars, margin):
-  row_positions = calculate_row_positions(chars, margin)
-
-  rows = []
-  for pos in row_positions:
-    row = [char for char in chars if within_margin(y_axis_center(char), pos, margin)]
-    rows.append(row)
-  return rows
-
-
-def sort_characters_into_columns(rows, margin):
-  entries = [merge_characters_by_proximity(row, margin) for row in rows]
-
-  column_number = 0
-  max_length = max(list(map(lambda row: len(row), entries)))
-  while column_number < max_length:
-    right_boundries = [row[column_number]['right'] for row in entries if len(row) > column_number]
-    average_right = statistics.mean(right_boundries)
-    for row in entries:
-      try:
-        entry = row[column_number]
-      except IndexError:
-        entry = {'text': '', 'right': average_right}
-        row.insert(column_number, entry)
-        row.sort(key=lambda entry: entry['right'])
-        continue
-        
-      if x_axis_center(entry) > average_right:
-        row.insert(column_number, {'text': '', 'right': average_right})
+def extract_table(file_name, start, end):
+  characters = []
+  with tempfile.TemporaryDirectory() as temp_dir:
+    images_from_path = convert_from_path(file_name, output_folder=temp_dir, first_page=start, last_page=end, paths_only=True)
     
-    column_number += 1
-    max_length = max(list(map(lambda row: len(row), entries)))
+    for image_path in tqdm(images_from_path):
+      pdf_page = pytesseract.image_to_pdf_or_hocr(image_path, extension='pdf')
+      table = extract_table_from_page(BytesIO(pdf_page))
+      characters += table
+  return characters
 
-  return entries
 
+def extract_table_from_page(pdf_page):
+  params = LAParams(char_margin=100.0, detect_vertical=False)
+  pages = extract_pages(pdf_page, laparams=params)
+  characters = [extract_characters_from_page(page) for page in pages][0]
+  chars = simplify_characters(characters)
 
-def merge_characters_by_proximity(chars, margin):
-  sorted_chars = sorted(chars, key=lambda char: char['left'])
+  y_margin = math.ceil(average_height(chars) / 2)
+  rows = sort_characters_into_rows(chars, y_margin)
 
-  groups = []
-  grouped_chars = []
-  for char in sorted_chars:
-    if len(grouped_chars) == 0:
-      grouped_chars.append(char)
-      continue
+  x_margin = math.ceil(average_width(chars) / 2)
+  table = sort_characters_into_columns(rows, x_margin)
 
-    prev_char = grouped_chars[-1]
-    if within_margin(prev_char['right'], char['left'], margin):
-      grouped_chars.append(char)
-    else:
-      groups.append({
-        'text': ''.join(map(lambda char: char['text'], grouped_chars)),
-        'left': grouped_chars[0]['left'],
-        'right': grouped_chars[-1]['right']
-      })
-      grouped_chars = [char]
-
-  groups.append({
-        'text': ''.join(map(lambda char: char['text'], grouped_chars)),
-        'left': grouped_chars[0]['left'],
-        'right': grouped_chars[-1]['right']
-      })
-  return groups
+  return table
