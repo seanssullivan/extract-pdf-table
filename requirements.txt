@@ -1,0 +1,3 @@
+numpy==1.19.1
+pdfminer.six==20200726
+tqdm==4.48.2
