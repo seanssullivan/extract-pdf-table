@@ -11,10 +11,10 @@ from pdfminer.layout import LAParams
 import pytesseract
 from pytesseract import Output
 
-from helpers.dimensions import average_height, average_width
-from helpers.layout import sort_characters_into_rows, sort_characters_into_columns
-from helpers.representation import simplify_characters
+from helpers.abstractors import simplify
 from helpers.selectors import extract_characters_from_page
+from layout.dimensions import average_height, average_width
+from layout.tables import sort_characters_into_rows, sort_characters_into_columns
 
 
 def extract_table(filepath, page_range=None, output='text', use_ocr=False):
@@ -89,7 +89,7 @@ def convert_pdf_to_images(filepath, dir, page_range=None):
 
 def extract_table_from_page(page):
   characters = extract_characters_from_page(page)
-  chars = simplify_characters(characters)
+  chars = simplify(characters)
   table = format_table(chars)
   return table
 

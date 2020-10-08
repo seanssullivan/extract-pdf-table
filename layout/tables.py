@@ -1,7 +1,7 @@
 import statistics
 
-from .comparisons import within_margin
-from .dimensions import x_axis_center, y_axis_center
+from layout.comparisons import within_margin
+from layout.dimensions import x_axis_center, y_axis_center
 
 
 def calculate_row_positions(chars, margin):
