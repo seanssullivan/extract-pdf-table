@@ -1,8 +1,10 @@
+# helpers/decorators.py
+
 import logging
 import time
 
 
-def log_time(func):
+def log_time(func: function) -> function:
     """Decorator for logging function execution time."""
 
     def timed_function(*args, **kwargs):
