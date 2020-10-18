@@ -1,3 +1,5 @@
+# tests/test_text_extraction.py
+
 # Standard Imports
 import re
 import unittest
@@ -6,10 +8,10 @@ import unittest
 from pdfminer.layout import LTChar, LTPage, LTTextBoxHorizontal, LTTextLineHorizontal
 
 # Local Imports
-from helpers.selectors import extract_pages
-from helpers.selectors import extract_textboxes
-from helpers.selectors import extract_lines
-from helpers.selectors import extract_characters
+from helpers.extractors import extract_pages
+from helpers.extractors import extract_textboxes
+from helpers.extractors import extract_lines
+from helpers.extractors import extract_characters
 
 
 class TestPDFSelectors(unittest.TestCase):

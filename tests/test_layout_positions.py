@@ -1,10 +1,12 @@
+# tests/test_layout_positions.py
+
 # Standard Imports
 import unittest
 
 # Local Imports
 from helpers.abstractors import simplify
-from helpers.selectors import extract_pages, extract_characters
-from layout.positions import determine_line_positions, assign_characters_to_lines
+from helpers.extractors import extract_pages, extract_characters
+from layout.positions import determine_line_positions, determine_column_positions, assign_characters_to_lines
 
 
 class TestDetermineLinePositions(unittest.TestCase):
@@ -40,16 +42,16 @@ class TestAssignCharactersToLines(unittest.TestCase):
         characters = simplify(extract_characters(self.test_pages[1]))
         assigned_chars = assign_characters_to_lines(characters)
 
-        result = all(map(lambda char: 'line_num' in char, assigned_chars))
-        self.assertTrue(result)
+        for char in assigned_chars:
+            self.assertIn('line_num', char)
 
     def test_does_not_mutate_original(self) -> None:
         characters = simplify(extract_characters(self.test_pages[1]))
         assigned_chars = assign_characters_to_lines(characters)
         self.assertNotEqual(characters, assigned_chars)
 
-        result = all(map(lambda char: 'line_num' not in char, characters))
-        self.assertTrue(result)
+        for char in characters:
+            self.assertNotIn('line_num', char)
     
     def test_assigns_correct_lines(self) -> None:
         characters = simplify(extract_characters(self.test_pages[1]))
@@ -58,3 +60,19 @@ class TestAssignCharactersToLines(unittest.TestCase):
 
         for char in assigned_chars:
             self.assertEqual(char['line_num'], line_positions.index(char['y']))
+
+
+class TestDetermineColumnPositions(unittest.TestCase):
+
+    def setUp(self) -> None:
+        with open('tests/samples/sample_3.pdf', 'rb') as test_file:
+            self.test_pages = list(extract_pages(test_file))
+    
+    def test_returns_list(self) -> None:
+        characters = simplify(extract_characters(self.test_pages[0]))
+        result = determine_column_positions(characters)
+        self.assertIsInstance(result, list)
+
+
+class TestAssignCharactersToColumns(unittest.TestCase):
+    pass

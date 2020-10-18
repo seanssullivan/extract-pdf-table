@@ -1,3 +1,5 @@
+# tests/test_table_extraction.py
+
 # Standard Imports
 import unittest
 
@@ -6,7 +8,7 @@ import pandas as pd
 
 # Local Imports
 from extract_table import extract_table
-from helpers.selectors import extract_pages
+from helpers.extractors import extract_pages
 
 
 class TestTableExtraction(unittest.TestCase):
