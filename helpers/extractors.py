@@ -2,7 +2,7 @@
 
 # Standard Imports
 from io import StringIO
-from typing import Generator
+from typing import Generator, List
 
 # Third-Party Imports
 from pdfminer.converter import TextConverter, PDFPageAggregator
@@ -63,7 +63,7 @@ def extract_textboxes(element):
                 yield textbox
 
     # check whether the object is a generator which might yield pages
-    elif isinstance(element, Generator):
+    elif isinstance(element, Generator) or isinstance(element, List):
         for page in element:
             yield from extract_textboxes(page)
 
@@ -82,7 +82,7 @@ def extract_lines(element):
                 yield line
 
     # check whether the object is a generator which might yield textboxes
-    elif isinstance(element, Generator):
+    elif isinstance(element, Generator) or isinstance(element, List):
         for obj in element:
             yield from extract_lines(obj)
 
@@ -106,7 +106,7 @@ def extract_characters(element):
                 yield char
 
     # check whether the object is a generator which might yield lines of text
-    elif isinstance(element, Generator):
+    elif isinstance(element, Generator) or isinstance(element, List):
         for obj in element:
             yield from extract_characters(obj)
 
