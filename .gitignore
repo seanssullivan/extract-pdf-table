@@ -136,3 +136,6 @@ dmypy.json
 
 # OS stuff
 .DS_Store
+
+# Temporary
+samples
