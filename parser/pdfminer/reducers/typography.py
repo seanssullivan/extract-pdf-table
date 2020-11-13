@@ -7,6 +7,7 @@ from typing import Callable, Dict, Iterable, List, Set, Text, Union
 from pdfminer.layout import LTItem
 
 # Local Imports
+from parser.pdfminer.abstractors.fonts import get_fontname, get_fontsize, get_fontweight, get_typeface
 from parser.pdfminer.selectors import select_characters
 
 
@@ -25,28 +26,10 @@ def reduce_fontnames(
 
     # extract fontnames from instances of LTChar
     fontnames = [
-        char.fontname.split('+')[1]
-            if '+' in char.fontname
-            else char.fontname
-        for char in characters
+        get_fontname(char) for char in characters
         if all(map(lambda cb: cb(char), callbacks))
     ]
-
-    # if accumulator is a dictionary, count the fontnames
-    if isinstance(accumulator, Dict):
-        for fontname in fontnames:
-            accumulator.setdefault(fontname, 0)
-            accumulator[fontname] += 1
-
-    # if accumulator is a list, return the entire list
-    elif isinstance(accumulator, List):
-        accumulator = fontnames
-    
-    # if accumulator is a set, add fontnames to set
-    elif isinstance(accumulator, Set):
-        for fontname in fontnames:
-            accumulator.add(fontname)
-
+    _accumulate(accumulator, fontnames)
     return accumulator
 
 
@@ -65,26 +48,10 @@ def reduce_fontsizes(
 
     # extract fontsizes from instances of LTChar
     fontsizes = [
-        char.size 
-        for char in characters
+        get_fontsize(char) for char in characters
         if all(map(lambda cb: cb(char), callbacks))
     ]
-
-    # if accumulator is a dictionary, count the fontsizes
-    if isinstance(accumulator, Dict):
-        for fontsize in fontsizes:
-            accumulator.setdefault(fontsize, 0)
-            accumulator[fontsize] += 1
-
-    # if accumulator is a list, return the entire list
-    elif isinstance(accumulator, List):
-        accumulator = fontsizes
-    
-    # if accumulator is a set, add fontsizes to set
-    elif isinstance(accumulator, Set):
-        for fontsize in fontsizes:
-            accumulator.add(fontsize)
-
+    _accumulate(accumulator, fontsizes)
     return accumulator
 
 
@@ -102,28 +69,9 @@ def reduce_fontweights(
     fontnames = reduce_fontnames([], container, *callbacks)
 
     # extract fontweights from instances of LTChar
-    fontweights = [
-        fontname.split('-')[1]
-            if '-' in fontname
-            else 'Regular'
-        for fontname in fontnames
-    ]
-    
-    # if accumulator is a dictionary, count the fontweights
-    if isinstance(accumulator, Dict):
-        for fontweight in fontweights:
-            accumulator.setdefault(fontweight, 0)
-            accumulator[fontweight] += 1
+    fontweights = [get_fontweight(fname) for fname in fontnames]
 
-    # if accumulator is a list, return the entire list
-    elif isinstance(accumulator, List):
-        accumulator = fontweights
-    
-    # if accumulator is a set, add fontweights to set
-    elif isinstance(accumulator, Set):
-        for fontweight in fontweights:
-            accumulator.add(fontweight)
-
+    _accumulate(accumulator, fontweights)
     return accumulator
 
 
@@ -141,26 +89,27 @@ def reduce_typefaces(
     fontnames = reduce_fontnames([], container, *callbacks)
 
     # extract typefaces from instances of LTChar
-    typefaces = [
-        fontname.split('-')[0]
-            if '-' in fontname
-            else fontname
-        for fontname in fontnames
-    ]
+    typefaces = [get_typeface(fname) for fname in fontnames]
 
-    # if accumulator is a dictionary, count the typefaces
+    _accumulate(accumulator, typefaces)
+    return accumulator
+
+
+def _accumulate(accumulator: Union[Dict, List, Set], items: List) -> Union[Dict, List, Set]:
+    """Add items to the accumulator."""
+    # if accumulator is a dictionary, count the fontnames
     if isinstance(accumulator, Dict):
-        for typeface in typefaces:
-            accumulator.setdefault(typeface, 0)
-            accumulator[typeface] += 1
+        for item in items:
+            accumulator.setdefault(item, 0)
+            accumulator[item] += 1
 
     # if accumulator is a list, return the entire list
     elif isinstance(accumulator, List):
-        accumulator = typefaces
+        accumulator = items
     
-    # if accumulator is a set, add typefaces to set
+    # if accumulator is a set, add fontnames to set
     elif isinstance(accumulator, Set):
-        for typeface in typefaces:
-            accumulator.add(typeface)
+        for item in items:
+            accumulator.add(item)
 
     return accumulator
