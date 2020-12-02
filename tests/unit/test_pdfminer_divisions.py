@@ -1,20 +1,17 @@
-# helpers/pdfminer/test/unit/test_layout_divisions.py
-
-# Standard Imports
-import unittest
+# tests/unit/test_layout_divisions.py
 
 # Local Imports
 from parser.pdfminer.analyzers.divisions import determine_column_positions
 from parser.pdfminer.analyzers.divisions import determine_row_positions
 
 
-class TestDetermineColumnPositions(unittest.TestCase):
+class TestDetermineColumnPositions():
 
     def test_returns_list_of_tuples(self) -> None:
         test_positions = [(0, 0, 10, 10), (10, 10, 10, 10)]
         result = determine_column_positions(*test_positions)
-        self.assertIsInstance(result, list)
-        self.assertTrue(all(map(lambda e: isinstance(e, tuple), result)))
+        assert isinstance(result, list)
+        assert all(map(lambda e: isinstance(e, tuple), result))
 
     def test_returns_correct_column_positions(self) -> None:
         test_positions = [
@@ -26,23 +23,23 @@ class TestDetermineColumnPositions(unittest.TestCase):
         ]
         actual = determine_column_positions(*test_positions)
         expected = [(0, 10), (15, 25), (30, 40), (45, 55), (60, 70)]
-        self.assertListEqual(actual, expected)
+        assert actual == expected
 
     def test_returns_atleast_one_column(self) -> None:
         test_positions = [(5, 0, 25, 10), (0, 15, 20, 25), (5, 30, 25, 40), (0, 45, 20, 55), (5, 60, 25, 70)]
         actual = determine_column_positions(*test_positions)
         expected = [(0, 25)]
-        self.assertEqual(len(actual), 1)
-        self.assertListEqual(actual, expected)
+        assert len(actual) == 1
+        assert actual == expected
 
 
-class TestDetermineRowPositions(unittest.TestCase):
+class TestDetermineRowPositions():
 
     def test_returns_list_of_tuples(self) -> None:
         test_positions = [(0, 0, 10, 10), (10, 10, 10, 10)]
         result = determine_row_positions(*test_positions)
-        self.assertIsInstance(result, list)
-        self.assertTrue(all(map(lambda e: isinstance(e, tuple), result)))
+        assert isinstance(result, list)
+        assert all(map(lambda e: isinstance(e, tuple), result))
 
     def test_returns_correct_row_positions(self) -> None:
         test_positions = [
@@ -54,11 +51,12 @@ class TestDetermineRowPositions(unittest.TestCase):
         ]
         actual = determine_row_positions(*test_positions)
         expected = [(60, 70), (45, 55), (30, 40), (15, 25), (0, 10)]
-        self.assertListEqual(actual, expected)
+        assert actual == expected
 
     def test_returns_atleast_one_row(self) -> None:
         test_positions = [(0, 5, 10, 25), (15, 0, 25, 20), (30, 5, 40, 25), (45, 0, 55, 20), (60, 5, 70, 25)]
         actual = determine_row_positions(*test_positions)
         expected = [(0, 25)]
-        self.assertEqual(len(actual), 1)
-        self.assertListEqual(actual, expected)
+
+        assert len(actual) == 1
+        assert actual == expected
