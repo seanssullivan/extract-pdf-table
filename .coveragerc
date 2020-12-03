@@ -1,0 +1,18 @@
+[run]
+source = .
+omit = 
+    # omit everything in /env
+    ./env/*
+    # omit anything in a . file anywhere
+    */.*
+    # omit anything in a /tests or /test directory anywhere
+    */test*
+
+[report]
+omit = 
+    # omit everything in /env
+    ./env/*
+    # omit anything in a . file anywhere
+    */.*
+    # omit anything in a /tests or /test directory anywhere
+    */test*
