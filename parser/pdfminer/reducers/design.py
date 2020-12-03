@@ -1,6 +1,7 @@
 # parser/pdfminer/reducers/typography.py
 
 # Standard Imports
+from collections import Counter
 from typing import Callable, Dict, Iterable, List, Set, Text, Union
 
 # Third-Party Imports
@@ -29,8 +30,9 @@ def reduce_fontnames(
         get_fontname(char) for char in characters
         if all(map(lambda cb: cb(char), callbacks))
     ]
-    _accumulate(accumulator, fontnames)
-    return accumulator
+
+    # return accumulated values
+    return _accumulate(accumulator, fontnames)
 
 
 def reduce_fontsizes(
@@ -51,8 +53,9 @@ def reduce_fontsizes(
         get_fontsize(char) for char in characters
         if all(map(lambda cb: cb(char), callbacks))
     ]
-    _accumulate(accumulator, fontsizes)
-    return accumulator
+
+    # return accumulated values
+    return _accumulate(accumulator, fontsizes)
 
 
 def reduce_fontweights(
@@ -66,13 +69,16 @@ def reduce_fontweights(
     :param container: an instance of an LTItem object or an iterable containing them.
     :param callbacks: functions to filter the LTChar items before counting font weights.
     """
-    fontnames = reduce_fontnames([], container, *callbacks)
+    characters = select_characters(container)
 
     # extract fontweights from instances of LTChar
-    fontweights = [get_fontweight(fname) for fname in fontnames]
+    fontweights = [
+        get_fontweight(char) for char in characters
+        if all(map(lambda cb: cb(char), callbacks))
+    ]
 
-    _accumulate(accumulator, fontweights)
-    return accumulator
+    # return accumulated values
+    return _accumulate(accumulator, fontweights)
 
 
 def reduce_typefaces(
@@ -86,30 +92,32 @@ def reduce_typefaces(
     :param container: an instance of an LTItem object or an iterable containing them.
     :param callbacks: functions to filter the LTChar items before counting typefaces.
     """
-    fontnames = reduce_fontnames([], container, *callbacks)
+    characters = select_characters(container)
 
     # extract typefaces from instances of LTChar
-    typefaces = [get_typeface(fname) for fname in fontnames]
+    typefaces = [
+        get_typeface(char) for char in characters
+        if all(map(lambda cb: cb(char), callbacks))
+    ]
 
-    _accumulate(accumulator, typefaces)
-    return accumulator
+    # return accumulated values
+    return _accumulate(accumulator, typefaces)
 
 
 def _accumulate(accumulator: Union[Dict, List, Set], items: List) -> Union[Dict, List, Set]:
     """Add items to the accumulator."""
     # if accumulator is a dictionary, count the fontnames
     if isinstance(accumulator, Dict):
-        for item in items:
-            accumulator.setdefault(item, 0)
-            accumulator[item] += 1
+        return Counter(items)
 
     # if accumulator is a list, return the entire list
     elif isinstance(accumulator, List):
-        accumulator = items
+        return items
     
     # if accumulator is a set, add fontnames to set
     elif isinstance(accumulator, Set):
-        for item in items:
-            accumulator.add(item)
+        return set(items)
 
-    return accumulator
+    # else accumulator is not a valid type
+    else:
+        raise TypeError("accumulator must be dict, list or set")

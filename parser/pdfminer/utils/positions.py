@@ -8,7 +8,7 @@ from typing import List, Tuple
 from pdfminer.layout import LTItem
 
 # Local Imports
-from parser.pdfminer.abstractors import get_position
+from ..abstractors import get_position
 
 
 def estimate_bounding_box(*items: LTItem) -> Tuple:

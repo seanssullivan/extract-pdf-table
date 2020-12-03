@@ -4,10 +4,10 @@
 import pytest
 
 # Local Imports
-from parser.pdfminer.reducers.typography import reduce_fontnames
-from parser.pdfminer.reducers.typography import reduce_fontsizes
-from parser.pdfminer.reducers.typography import reduce_fontweights
-from parser.pdfminer.reducers.typography import reduce_typefaces
+from parser.pdfminer.reducers.design import reduce_fontnames
+from parser.pdfminer.reducers.design import reduce_fontsizes
+from parser.pdfminer.reducers.design import reduce_fontweights
+from parser.pdfminer.reducers.design import reduce_typefaces
 
 
 class TestReduceFontNames():

@@ -10,10 +10,14 @@ from typing import Callable, Iterable, List, Tuple, Union
 from pdfminer.layout import LTContainer, LTItem, LTPage, LTRect, LTTextBox, LTTextLine
 
 # Local Imports
-from parser.pdfminer import callbacks as cb
-from parser.pdfminer.abstractors import get_position
-from parser.pdfminer.utils import merge_overlapping_positions
-from parser.pdfminer.selectors import select_lines, select_rectangles, select_textboxes
+from .. import callbacks as cb
+from ..abstractors import get_position
+from ..utils import merge_overlapping_positions
+from ..selectors import (
+    select_lines,
+    select_rectangles,
+    select_textboxes
+)
 
 
 def determine_column_positions(*items: Union[LTItem, Tuple], boundaries: Tuple = None) -> List[Tuple]:
