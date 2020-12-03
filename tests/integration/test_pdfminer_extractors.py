@@ -5,11 +5,17 @@ import os
 from typing import Generator
 
 # Third-Party Imports
+import pandas as pd
 from pdfminer.layout import LTPage
 import pytest
 
 # Local Imports
-from parser.pdfminer.extractors import extract_pages
+from parser.pdfminer.extractors.pages import extract_pages
+from parser.pdfminer.extractors.tables import extract_cell_content
+from parser.pdfminer.extractors.tables import extract_row_content
+from parser.pdfminer.extractors.tables import extract_table_entry
+from parser.pdfminer.extractors.tables import extract_field_names
+from parser.pdfminer.extractors.tables import extract_table
 
 
 SAMPLES = 'tests/samples/'
@@ -41,3 +47,183 @@ class TestExtractingPages():
     def test_returns_correct_number_of_pages(self, test_pages) -> None:
         result = list(extract_pages(test_pages))
         assert len(result) == 3
+
+
+class TestExtractCellContent():
+
+    def test_returns_text(self, table_borders) -> None:
+        result = extract_cell_content(table_borders[0], (72.525, 705.97, 164.075, 719.47))
+        assert isinstance(result, str)
+
+    def test_returns_correct_text(self, table_borders) -> None:
+        result = extract_cell_content(table_borders[0], (259.6, 705.97, 352.65, 719.47))
+        assert result == 'TestField1'
+
+
+class TestExtractRowContent():
+
+    def test_returns_list(self, table_borders) -> None:
+        row, columns = (705.97, 719.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        result = extract_row_content(table_borders[0], row, columns)
+        assert isinstance(result, list)
+
+    def test_returns_correct_text(self, table_borders) -> None:
+        row, columns = (705.97, 719.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        expected = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
+        actual = extract_row_content(table_borders[0], row, columns)
+        assert actual == expected
+
+
+class TestExtractTableEntry():
+
+    def test_returns_dict(self, table_borders) -> None:
+        fields = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
+        row, columns = (692.22, 705.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        result = extract_table_entry(table_borders[0], row, columns, fields)
+        assert isinstance(result, dict)
+
+    def test_returns_correct_text(self, table_borders) -> None:
+        fields = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
+        row, columns = (692.22, 705.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        expected = {"IdField": "1", "NameField": "Name1", "TestField1": "Value1", "TestField2": "Value2", "TestField3": "Value3"}
+        actual = extract_table_entry(table_borders[0], row, columns, fields)
+        assert actual == expected
+
+
+class TestExtractFieldNames():
+
+    def test_returns_pandas_index(self, table_borders) -> None:
+        rows = [(705.97, 719.47), (692.22, 705.47), (678.22, 691.72), (664.2, 677.725), (650.2, 663.7), (636.45, 649.7)]
+        cols = [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        result = extract_field_names(table_borders[0], rows, cols, headers=1)
+        assert isinstance(result, pd.Index)
+
+    def test_returns_correct_text(self, table_borders) -> None:
+        rows = [(705.97, 719.47), (692.22, 705.47), (678.22, 691.72), (664.2, 677.725), (650.2, 663.7), (636.45, 649.7)]
+        cols = [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        actual = extract_field_names(table_borders[0], rows, cols, headers=1)
+        expected = pd.Index(["IdField", "NameField", "TestField1", "TestField2", "TestField3"])
+        pd.testing.assert_index_equal(actual, expected)
+
+
+class TestExtractingTable():
+    
+    def test_returns_dataframe(self, table_borders) -> None:
+        result = extract_table(table_borders[0])
+        assert isinstance(result, pd.DataFrame)
+
+    # def test_returns_none_if_no_tables_found(self, test_paragraphs) -> None:
+    #     result = extract_table(test_paragraphs[0])
+    #     assert not result
+
+    def test_returns_correct_table_data_with_full_borders(self, table_borders) -> None:
+        actual = extract_table(table_borders[0])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', 'Value2', 'Value3'],
+                  ["2", 'Name2', 'Value4', 'Value5', 'Value6'],
+                  ["3", 'Name3', 'Value7', 'Value8', 'Value9'],
+                  ["4", 'Name4', 'Value10', 'Value11', 'Value12'],
+                  ["5", 'Name5', 'Value13', 'Value14', 'Value15']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_returns_correct_table_data_with_partial_borders(self, table_borders) -> None:
+        actual = extract_table(table_borders[1])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', 'Value2', 'Value3'],
+                  ["2", 'Name2', 'Value4', 'Value5', 'Value6'],
+                  ["3", 'Name3', 'Value7', 'Value8', 'Value9'],
+                  ["4", 'Name4', 'Value10', 'Value11', 'Value12'],
+                  ["5", 'Name5', 'Value13', 'Value14', 'Value15']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+    
+    def test_returns_correct_table_data_with_no_borders(self, table_borders) -> None:
+        actual = extract_table(table_borders[2])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', 'Value2', 'Value3'],
+                  ["2", 'Name2', 'Value4', 'Value5', 'Value6'],
+                  ["3", 'Name3', 'Value7', 'Value8', 'Value9'],
+                  ["4", 'Name4', 'Value10', 'Value11', 'Value12'],
+                  ["5", 'Name5', 'Value13', 'Value14', 'Value15']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_returns_correct_table_when_not_missing_values(self, missing_values) -> None:
+        actual = extract_table(missing_values[0])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', 'Value2', 'Value3'],
+                  ["2", 'Name2', 'Value4', 'Value5', 'Value6'],
+                  ["3", 'Name3', 'Value7', 'Value8', 'Value9'],
+                  ["4", 'Name4', 'Value10', 'Value11', 'Value12'],
+                  ["5", 'Name5', 'Value13', 'Value14', 'Value15']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_returns_correct_table_when_missing_some_values(self, missing_values) -> None:
+        actual = extract_table(missing_values[1])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', 'Value2', 'Value3'],
+                  ["2", 'Name2', 'Value4', 'Value5', ''],
+                  ["3", 'Name3', 'Value6', 'Value7', 'Value8'],
+                  ["4", 'Name4', 'Value9', '', ''],
+                  ["5", 'Name5', 'Value10', 'Value11', 'Value12']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_returns_correct_table_when_missing_more_values(self, missing_values) -> None:
+        actual = extract_table(missing_values[2])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', '', 'Value2'],
+                  ["2", 'Name2', 'Value3', 'Value4', ''],
+                  ["3", 'Name3', '', 'Value5', 'Value6'],
+                  ["4", 'Name4', 'Value7', '', 'Value8'],
+                  ["5", 'Name5', '', 'Value9', '']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+    
+    def test_returns_correct_table_when_missing_many_values(self, missing_values) -> None:
+        actual = extract_table(missing_values[3])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', '', 'Value2'],
+                  ["2", 'Name2', 'Value3', '', ''],
+                  ["3", 'Name3', '', 'Value4', ''],
+                  ["4", 'Name4', 'Value5', '', ''],
+                  ["5", 'Name5', '', '', 'Value6']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_returns_correct_table_when_missing_most_values(self, missing_values) -> None:
+        actual = extract_table(missing_values[4])
+        expected = pd.DataFrame(
+            columns=['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'],
+            data=[["1", 'Name1', 'Value1', '', ''],
+                  ["2", 'Name2', '', '', 'Value2'],
+                  ["3", 'Name3', '', '', ''],
+                  ["4", 'Name4', '', 'Value3', ''],
+                  ["5", 'Name5', '', '', '']]
+        )
+        pd.testing.assert_frame_equal(actual, expected)
+
+    # def test_returns_tables_that_span_multiple_pages(self, page_overflow) -> None:
+    #     result = extract_table(page_overflow[0:3])
+    #     assert result.shape == (100, 5)
+    #     pd.testing.assert_index_equal(
+    #         result.columns, 
+    #         pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
+    #     )
+
+    # def test_returns_tables_on_multiple_pages_without_repeating_headers(self, page_overflow) -> None:
+    #     result = extract_table(page_overflow[3:6])
+    #     assert result.shape == (100, 5)
+    #     pd.testing.assert_index_equal(
+    #         result.columns, 
+    #         pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
+    #     )
