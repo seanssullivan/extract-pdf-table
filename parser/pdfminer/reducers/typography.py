@@ -7,7 +7,7 @@ from typing import Callable, Dict, Iterable, List, Set, Text, Union
 from pdfminer.layout import LTItem
 
 # Local Imports
-from parser.pdfminer.abstractors.fonts import get_fontname, get_fontsize, get_fontweight, get_typeface
+from parser.pdfminer.abstractors import get_fontname, get_fontsize, get_fontweight, get_typeface
 from parser.pdfminer.selectors import select_characters
 
 

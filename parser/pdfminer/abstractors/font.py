@@ -1,4 +1,4 @@
-# parser/pdfminer/abstractors/fonts.py
+# parser/pdfminer/abstractors/font.py
 
 # Standard Imports
 from typing import Text

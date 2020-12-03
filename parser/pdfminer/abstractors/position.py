@@ -1,4 +1,4 @@
-# parser/pdfminer/abstractors/positions.py
+# parser/pdfminer/abstractors/position.py
 
 # Standard Imports
 from typing import Tuple

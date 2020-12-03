@@ -116,7 +116,7 @@ def _columns_from_layout(*items : LTItem, boundaries: Tuple = None) -> List[Tupl
         
     # Otherwise, we'll need to rely on textboxes to estimate column positions
     # Without borders, these dimensions may not account for padding
-    if textboxes := select_textboxes(items, cb.within(boundaries), cb.text.is_not_blank()):
+    if textboxes := select_textboxes(items, cb.within(boundaries), cb.text.not_blank()):
         columns = _columns_from_textboxes(*textboxes)
         column_positions.update(columns)
     
@@ -139,7 +139,7 @@ def _rows_from_layout(*items: LTItem, boundaries: Tuple = None) -> List[Tuple]:
 
     # Otherwise, we'll need to rely on lines to estimate row positions
     # Without borders, these dimensions may not account for padding
-    if lines := select_lines(items, cb.within(boundaries), cb.text.is_not_blank()):
+    if lines := select_lines(items, cb.within(boundaries), cb.text.not_blank()):
         rows = _rows_from_lines(*lines)
         row_positions.update(rows)
     
