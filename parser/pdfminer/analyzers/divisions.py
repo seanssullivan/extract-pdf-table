@@ -140,7 +140,7 @@ def _columns_from_rectangles(*rectangles: LTRect) -> List[Tuple]:
     This function is designed to help determine the positions of
     columns and should not be imported into other modules."""
     rectangle_positions = reduce_positions([], rectangles, lambda elem: elem.height > 1 and elem.width < 1)
-    horizontal_positions = set(map(lambda pos: itemgetter(0, 2)(pos), rectangle_positions))
+    horizontal_positions = set([itemgetter(0, 2)(pos) for pos in rectangle_positions])
 
     # Iterate over positions and remove overlapping columns.
     unique_positions = merge_overlapping_positions(*horizontal_positions)
@@ -148,7 +148,7 @@ def _columns_from_rectangles(*rectangles: LTRect) -> List[Tuple]:
     # Sort positions from left to right
     sorted_positions = sorted(unique_positions, key=lambda col: col[0])
 
-    # Pair positions into tuples representing the left and right sides of columns
+    # Pair positions into tuples representing the left and right sides of each column
     columns = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
 
     # Return columns if more than one
@@ -161,10 +161,10 @@ def _rows_from_rectangles(*rectangles: LTRect) -> List[Tuple]:
     This function is designed to help determine the positions of
     rows and should not be imported into other modules."""
     rectangle_positions = reduce_positions([], rectangles, lambda elem: elem.width > 1 and elem.height < 1)
-    row_positions = set(map(lambda pos: itemgetter(1, 3)(pos), rectangle_positions))
+    vertical_positions = set([itemgetter(1, 3)(pos) for pos in rectangle_positions])
 
     # Iterate over positions and remove overlapping rows
-    unique_positions = merge_overlapping_positions(*row_positions)
+    unique_positions = merge_overlapping_positions(*vertical_positions)
 
     # Sort positions from top to bottom
     sorted_positions = sorted(unique_positions, key=lambda row: row[0])

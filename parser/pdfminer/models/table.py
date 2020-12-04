@@ -5,7 +5,12 @@ from typing import List
 
 # Third-Party Imports
 import pandas as pd
-from pdfminer.layout import LTChar, LTContainer, LTPage, LTTextBoxHorizontal, LTTextLineHorizontal
+from pdfminer.layout import LTContainer, LTPage
+
+# Local Imports
+from .cell import LTCell
+from .column import LTColumn
+from .row import LTRow
 
 
 class LTTable(LTContainer):
@@ -49,60 +54,8 @@ class LTTable(LTContainer):
         elif isinstance(element, LTRow):
             self.rows.append(element)
         else:
-            raise ValueError
+            raise ValueError("must be an instance of LTCell, LTColumn, or LTRow")
 
     def extend(self, elements) -> None:
         for element in elements:
             self.add(element)
-
-
-class LTCell(LTContainer):
-
-    def __init__(self, bbox):
-        LTContainer.__init__(self, bbox)
-
-    def add(self, element) -> None:
-        if isinstance(element, LTTextLineHorizontal):
-            super().extend(list(element))
-        elif isinstance(element, LTChar):
-            super().add(element)
-        else:
-            raise ValueError
-    
-
-class LTColumn(LTContainer):
-
-    def __init__(self, bbox):
-        LTContainer.__init__(self, bbox)
-        self.cells = []
-
-    def __iter__(self):
-        return iter(self._objs)
-
-    def __len__(self):
-        return len(self._objs)
-
-    def add(self, cell) -> None:
-        if isinstance(cell, LTCell):
-            self.cells.append(cell)
-        else:
-            raise ValueError
-
-
-class LTRow(LTContainer):
-
-    def __init__(self, bbox):
-        LTContainer.__init__(self, bbox)
-        self.cells = []
-
-    def __iter__(self):
-        return iter(self._objs)
-
-    def __len__(self):
-        return len(self._objs)
-
-    def add(self, cell) -> None:
-        if isinstance(cell, LTCell):
-            self.cells.append(cell)
-        else:
-            raise ValueError
