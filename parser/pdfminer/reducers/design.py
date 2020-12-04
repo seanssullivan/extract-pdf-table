@@ -21,7 +21,7 @@ def reduce_fontnames(
     Return all font names used in a container.
     :param accumulator: an instance of dict, list or set.
     :param container: an instance of an LTItem object or an iterable containing them.
-    :param callbacks: functions to filter the LTChar items before counting font names.
+    :param callbacks: functions to filter the LTChar items.
     """
     characters = select_characters(container)
 
@@ -44,7 +44,7 @@ def reduce_fontsizes(
     Return all font sizes used in a container.
     :param accumulator: an instance of dict, list or set.
     :param container: an instance of an LTItem object or an iterable containing them.
-    :param callbacks: functions to filter the LTChar items before counting font sizes.
+    :param callbacks: functions to filter the LTChar items.
     """
     characters = select_characters(container)
 
@@ -67,7 +67,7 @@ def reduce_fontweights(
     Return all font names used in a container.
     :param accumulator: an instance of dict, list or set.
     :param container: an instance of an LTItem object or an iterable containing them.
-    :param callbacks: functions to filter the LTChar items before counting font weights.
+    :param callbacks: functions to filter the LTChar items.
     """
     characters = select_characters(container)
 
@@ -90,7 +90,7 @@ def reduce_typefaces(
     Return all typefaces used in a container.
     :param accumulator: an instance of dict, list or set.
     :param container: an instance of an LTItem object or an iterable containing them.
-    :param callbacks: functions to filter the LTChar items before counting typefaces.
+    :param callbacks: functions to filter the LTChar items.
     """
     characters = select_characters(container)
 
@@ -106,7 +106,7 @@ def reduce_typefaces(
 
 def _accumulate(accumulator: Union[Dict, List, Set], items: List) -> Union[Dict, List, Set]:
     """Add items to the accumulator."""
-    # if accumulator is a dictionary, count the fontnames
+    # if accumulator is a dictionary, count the items
     if isinstance(accumulator, Dict):
         return Counter(items)
 
@@ -114,7 +114,7 @@ def _accumulate(accumulator: Union[Dict, List, Set], items: List) -> Union[Dict,
     elif isinstance(accumulator, List):
         return items
     
-    # if accumulator is a set, add fontnames to set
+    # if accumulator is a set, add itemds to set
     elif isinstance(accumulator, Set):
         return set(items)
 

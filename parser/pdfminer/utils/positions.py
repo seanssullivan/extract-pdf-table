@@ -36,7 +36,8 @@ def merge_positions(*positions):
 
 def merge_overlapping_positions(*positions: Tuple) -> List:
     """Merge overlapping positions and return any that are distinct."""
-    return reduce(_merge_on_overlap, positions, []) if len(positions) > 0 else []
+    result = reduce(_merge_on_overlap, positions, []) if len(positions) > 0 else []
+    return result
 
 
 def _merge_on_overlap(accumulator: List, position: Tuple) -> List:
