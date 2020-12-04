@@ -12,6 +12,7 @@ import pytest
 # Local Imports
 from parser.pdfminer.extractors.pages import extract_pages
 from parser.pdfminer.extractors.tables import extract_cell_content
+from parser.pdfminer.extractors.tables import extract_column_content
 from parser.pdfminer.extractors.tables import extract_row_content
 from parser.pdfminer.extractors.tables import extract_table_entry
 from parser.pdfminer.extractors.tables import extract_field_names
@@ -58,6 +59,20 @@ class TestExtractCellContent():
     def test_returns_correct_text(self, table_borders) -> None:
         result = extract_cell_content(table_borders[0], (259.6, 706.0, 352.7, 719.5))
         assert result == 'TestField1'
+
+
+class TestExtractColumnContent():
+
+    def test_returns_list(self, table_borders) -> None:
+        column, rows = (72.5, 164.0), [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
+        result = extract_column_content(table_borders[0], column, rows)
+        assert isinstance(result, list)
+
+    def test_returns_correct_text(self, table_borders) -> None:
+        column, rows = (72.5, 164.0), [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
+        expected = ["IdField", "1", "2", "3", "4", "5"]
+        actual = extract_column_content(table_borders[0], column, rows)
+        assert actual == expected
 
 
 class TestExtractRowContent():
