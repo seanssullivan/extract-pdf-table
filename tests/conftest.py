@@ -41,25 +41,31 @@ def text_alignment():
         return list(extract_pages(pdf))
 
 
+# @pytest.fixture(scope="package")
+# def data_types():
+#     with open(os.path.join(SAMPLES, '06_data_types.pdf'), 'rb') as pdf:
+#         return list(extract_pages(pdf))
+
+
 @pytest.fixture(scope="package")
 def table_headers():
-    with open(os.path.join(SAMPLES, '06_table_headers.pdf'), 'rb') as pdf:
+    with open(os.path.join(SAMPLES, '07_table_headers.pdf'), 'rb') as pdf:
         return list(extract_pages(pdf))
 
 
 @pytest.fixture(scope="package")
 def table_titles():
-    with open(os.path.join(SAMPLES, '07_table_titles.pdf'), 'rb') as pdf:
-        return list(extract_pages(pdf))
-
-
-@pytest.fixture(scope="package")
-def embedded_tables():
-    with open(os.path.join(SAMPLES, '08_embedded_tables.pdf'), 'rb') as pdf:
+    with open(os.path.join(SAMPLES, '08_table_titles.pdf'), 'rb') as pdf:
         return list(extract_pages(pdf))
 
 
 @pytest.fixture(scope="package")
 def page_overflow():
     with open(os.path.join(SAMPLES, '09_page_overflow.pdf'), 'rb') as pdf:
+        return list(extract_pages(pdf))
+
+
+@pytest.fixture(scope="package")
+def embedded_tables():
+    with open(os.path.join(SAMPLES, '10_embedded_tables.pdf'), 'rb') as pdf:
         return list(extract_pages(pdf))

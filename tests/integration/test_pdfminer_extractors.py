@@ -52,23 +52,23 @@ class TestExtractingPages():
 class TestExtractCellContent():
 
     def test_returns_text(self, table_borders) -> None:
-        result = extract_cell_content(table_borders[0], (72.525, 705.97, 164.075, 719.47))
+        result = extract_cell_content(table_borders[0], (72.5, 706.0, 164.0, 719.5))
         assert isinstance(result, str)
 
     def test_returns_correct_text(self, table_borders) -> None:
-        result = extract_cell_content(table_borders[0], (259.6, 705.97, 352.65, 719.47))
+        result = extract_cell_content(table_borders[0], (259.6, 706.0, 352.7, 719.5))
         assert result == 'TestField1'
 
 
 class TestExtractRowContent():
 
     def test_returns_list(self, table_borders) -> None:
-        row, columns = (705.97, 719.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        row, columns = (706.0, 719.5), [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         result = extract_row_content(table_borders[0], row, columns)
         assert isinstance(result, list)
 
     def test_returns_correct_text(self, table_borders) -> None:
-        row, columns = (705.97, 719.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        row, columns = (706.0, 719.5), [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         expected = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
         actual = extract_row_content(table_borders[0], row, columns)
         assert actual == expected
@@ -78,13 +78,13 @@ class TestExtractTableEntry():
 
     def test_returns_dict(self, table_borders) -> None:
         fields = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
-        row, columns = (692.22, 705.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        row, columns = (692.2, 705.5), [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         result = extract_table_entry(table_borders[0], row, columns, fields)
         assert isinstance(result, dict)
 
     def test_returns_correct_text(self, table_borders) -> None:
         fields = ["IdField", "NameField", "TestField1", "TestField2", "TestField3"]
-        row, columns = (692.22, 705.47), [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        row, columns = (692.2, 705.5), [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         expected = {"IdField": "1", "NameField": "Name1", "TestField1": "Value1", "TestField2": "Value2", "TestField3": "Value3"}
         actual = extract_table_entry(table_borders[0], row, columns, fields)
         assert actual == expected
@@ -93,14 +93,14 @@ class TestExtractTableEntry():
 class TestExtractFieldNames():
 
     def test_returns_pandas_index(self, table_borders) -> None:
-        rows = [(705.97, 719.47), (692.22, 705.47), (678.22, 691.72), (664.2, 677.725), (650.2, 663.7), (636.45, 649.7)]
-        cols = [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        rows = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
+        cols = [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         result = extract_field_names(table_borders[0], rows, cols, headers=1)
         assert isinstance(result, pd.Index)
 
     def test_returns_correct_text(self, table_borders) -> None:
-        rows = [(705.97, 719.47), (692.22, 705.47), (678.22, 691.72), (664.2, 677.725), (650.2, 663.7), (636.45, 649.7)]
-        cols = [(72.525, 164.075), (164.58, 259.105), (259.6, 352.65), (353.15, 446.175), (446.68, 539.73)]
+        rows = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
+        cols = [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         actual = extract_field_names(table_borders[0], rows, cols, headers=1)
         expected = pd.Index(["IdField", "NameField", "TestField1", "TestField2", "TestField3"])
         pd.testing.assert_index_equal(actual, expected)

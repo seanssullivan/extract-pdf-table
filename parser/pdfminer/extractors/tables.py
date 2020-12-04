@@ -80,6 +80,17 @@ def extract_table_entry(container: LTContainer, row: Tuple, columns: List, field
     return entry
 
 
+def extract_column_content(container: LTContainer, column: Tuple, rows: List) -> List:
+    """Return the content of LTTextLineHorizontal objects inside a table column."""
+    # Select cells inside the table column and extract their content
+    content = []
+    for row in rows:
+        cell = extract_cell_content(container, (column[0], row[0], column[1], row[1]))
+        content.append(cell)
+
+    return content
+
+
 def extract_row_content(container: LTContainer, row: Tuple, columns: List) -> List:
     """Return the content of LTTextLineHorizontal objects inside a table row."""
     # Select cells inside the table row and extract their content
