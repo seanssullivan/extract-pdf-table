@@ -25,23 +25,17 @@ SAMPLES = 'tests/samples/'
 class TestExtractingPages():
 
     @pytest.fixture(autouse=True)
-    def test_paragraphs(self) -> None:
-        file = open(os.path.join(SAMPLES, '01_paragraphs.pdf'), 'rb')
-        yield file
-        file.close()
-
-    @pytest.fixture(autouse=True)
     def test_pages(self) -> None:
-        file = open(os.path.join(SAMPLES, '02_multiple_pages.pdf'), 'rb')
+        file = open(os.path.join(SAMPLES, '00_pages.pdf'), 'rb')
         yield file
         file.close()
 
-    def test_returns_iterator(self, test_paragraphs) -> None:
-        result = extract_pages(test_paragraphs)
+    def test_returns_iterator(self, test_pages) -> None:
+        result = extract_pages(test_pages)
         assert isinstance(result, Generator)
 
-    def test_returns_pages_from_pdf(self, test_paragraphs) -> None:
-        result = extract_pages(test_paragraphs)
+    def test_returns_pages_from_pdf(self, test_pages) -> None:
+        result = extract_pages(test_pages)
         for page in result:
             assert isinstance(page, LTPage)
     
@@ -165,7 +159,6 @@ class TestExtractingTable():
                   ["4", 'Name4', 'Value10', 'Value11', 'Value12'],
                   ["5", 'Name5', 'Value13', 'Value14', 'Value15']]
         )
-        print(actual)
         pd.testing.assert_frame_equal(actual, expected)
 
     def test_returns_correct_table_when_not_missing_values(self, missing_values) -> None:

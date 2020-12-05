@@ -12,91 +12,79 @@ from parser.pdfminer.reducers.design import reduce_typefaces
 
 class TestReduceFontNames():
 
-    @pytest.fixture(autouse=True)
-    def text(self, paragraphs):
-        return paragraphs[0]
+    # @pytest.fixture(scope="function", params=[i for i in range(5)])
+    # def font(self, request, fonts):
+    #     yield fonts[request.param]
 
-    def test_returns_list_of_strings_when_accumulator_is_a_list(self, text) -> None:
-        result = reduce_fontnames([], text)
+    def test_returns_list_of_strings_when_accumulator_is_a_list(self, fonts) -> None:
+        result = reduce_fontnames([], fonts)
         assert isinstance(result, list)
         for fontname in result:
             assert isinstance(fontname, str)
 
-    def test_returns_correct_fontname_when_only_one(self, text) -> None:
-        actual = reduce_fontnames(set(), text)
+    def test_returns_correct_fontname_when_only_one(self, fonts) -> None:
+        actual = reduce_fontnames(set(), fonts[0])
         expected = set(['ArialMT'])
         assert actual == expected
 
-    def test_returns_correct_fontnames_when_multiple(self, paragraphs) -> None:
-        actual = reduce_fontnames(set(), paragraphs)
-        expected = set(['ArialMT', 'Calibri-Italic', 'TimesNewRomanPS-BoldMT', 'Calibri-Italic'])
+    def test_returns_correct_fontnames_when_multiple(self, fonts) -> None:
+        actual = reduce_fontnames(set(), fonts)
+        expected = set(['ArialMT', 'Calibri-Bold', 'Georgia-Italic'])
         assert actual == expected
     
 
 class TestReduceFontSizes():
 
-    @pytest.fixture(autouse=True)
-    def text(self, paragraphs):
-        return paragraphs[0]
-
-    def test_returns_list_of_floats_when_accumulator_is_a_list(self, text) -> None:
-        result = reduce_fontsizes([], text)
+    def test_returns_list_of_floats_when_accumulator_is_a_list(self, fonts) -> None:
+        result = reduce_fontsizes([], fonts)
         assert isinstance(result, list)
         for fontsize in result:
             assert isinstance(fontsize, float)
     
-    def test_returns_correct_fontsize_when_only_one(self, text) -> None:
-        actual = reduce_fontsizes(set(), text)
-        expected = set([18.0])
+    def test_returns_correct_fontsize_when_only_one(self, fonts) -> None:
+        actual = reduce_fontsizes(set(), fonts[0])
+        expected = set([8.0])
         assert actual == expected
 
-    def test_returns_correct_fontsizes_when_multiple(self, paragraphs) -> None:
-        actual = reduce_fontsizes(set(), paragraphs)
-        expected = set([18.0, 14.0, 12.0])
+    def test_returns_correct_fontsizes_when_multiple(self, fonts) -> None:
+        actual = reduce_fontsizes(set(), fonts)
+        expected = set([8.0, 9.0, 10.0])
         assert actual == expected
 
 
 class TestReduceFontWeights():
 
-    @pytest.fixture(autouse=True)
-    def text(self, paragraphs):
-        return paragraphs[0]
-
-    def test_returns_list_of_strings_when_accumulator_is_a_list(self, text) -> None:
-        result = reduce_fontweights([], text)
+    def test_returns_list_of_strings_when_accumulator_is_a_list(self, fonts) -> None:
+        result = reduce_fontweights([], fonts)
         assert isinstance(result, list)
         for fontweight in result:
             assert isinstance(fontweight, str)
     
-    def test_returns_correct_fontweight_when_only_one(self, text) -> None:
-        actual = reduce_fontweights(set(), text)
+    def test_returns_correct_fontweight_when_only_one(self, fonts) -> None:
+        actual = reduce_fontweights(set(), fonts[0])
         expected = set(['Regular'])
         assert not actual.difference(expected)
 
-    def test_returns_correct_fontweights_when_multiple(self, paragraphs) -> None:
-        actual = reduce_fontweights(set(), paragraphs)
-        expected = set(['BoldMT', 'Regular', 'Italic'])
+    def test_returns_correct_fontweights_when_multiple(self, fonts) -> None:
+        actual = reduce_fontweights(set(), fonts)
+        expected = set(['Regular', 'Bold', 'Italic'])
         assert not actual.difference(expected)
 
 
 class TestReduceTypefaces():
 
-    @pytest.fixture(autouse=True)
-    def text(self, paragraphs):
-        return paragraphs[0]
-
-    def test_returns_list_of_strings_when_accumulator_is_a_list(self, text) -> None:
-        result = reduce_typefaces([], text)
+    def test_returns_list_of_strings_when_accumulator_is_a_list(self, fonts) -> None:
+        result = reduce_typefaces([], fonts)
         assert isinstance(result, list)
         for typeface in result:
             assert isinstance(typeface, str)
 
-    def test_returns_correct_typeface_when_only_one(self, text) -> None:
-        actual = reduce_typefaces(set(), text)
+    def test_returns_correct_typeface_when_only_one(self, fonts) -> None:
+        actual = reduce_typefaces(set(), fonts[0])
         expected = set(['ArialMT'])
         assert not actual.difference(expected)
 
-    def test_returns_correct_typeface_when_multiple(self, paragraphs) -> None:
-        actual = reduce_typefaces(set(), paragraphs)
-        expected = set(['ArialMT', 'Calibri', 'TimesNewRomanPS', 'Calibri'])
+    def test_returns_correct_typeface_when_multiple(self, fonts) -> None:
+        actual = reduce_typefaces(set(), fonts)
+        expected = set(['ArialMT', 'Calibri', 'Georgia'])
         assert not actual.difference(expected)
