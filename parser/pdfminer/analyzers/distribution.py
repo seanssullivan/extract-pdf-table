@@ -16,7 +16,7 @@ def determine_distribution(*positions: Union[LTContainer, Tuple]) -> Text:
 
     # Convert any LTContainers to tuples of their positions
     if all(map(lambda pos: isinstance(pos, LTContainer), positions)):
-        positions = map(lambda p: (p.x0, p.y0, p.x1, p.y1), positions)
+        positions = list(map(lambda p: (p.x0, p.y0, p.x1, p.y1), positions))
 
     overlaps = []
     for index, current in enumerate(positions):

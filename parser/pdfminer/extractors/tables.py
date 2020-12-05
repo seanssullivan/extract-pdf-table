@@ -35,7 +35,9 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> List:
 
     # Determine positions of rows and columns
     rows = determine_row_positions(page)
+    print("Rows: ", rows)
     cols = determine_column_positions(page)
+    print("Columns: ", cols)
 
     # Extract field names
     fields = extract_field_names(page, rows, cols, headers)
@@ -105,7 +107,6 @@ def extract_row_content(container: LTContainer, row: Tuple, columns: List) -> Li
 def extract_cell_content(container: LTContainer, bbox: Tuple) -> Text:
     """Return the content of LTTextLineHorizontal objects inside a table cell."""
     # Select lines inside the table cell and combine their content
-    lines = select_lines(container, cb.within(bbox))
+    lines = select_lines(container, cb.within(bbox, margin=1))
     content = reduce(lambda acc, ln: (acc + ln.get_text()), lines, "").strip()
-    
     return content

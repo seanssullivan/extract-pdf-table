@@ -5,7 +5,7 @@ from typing import List
 
 # Third-Party Imports
 import pandas as pd
-from pdfminer.layout import LTContainer, LTPage
+from pdfminer.layout import LTComponent, LTPage
 
 # Local Imports
 from .cell import LTCell
@@ -13,13 +13,13 @@ from .column import LTColumn
 from .row import LTRow
 
 
-class LTTable(LTContainer):
+class LTTable(LTComponent):
 
     def __init__(self, bbox):
         # Determine bounding box
         # x0, y0, x1, y1 = zip(*map(lambda c: (c.x0, c.y0, c.x1, c.y1), cells))
         # bbox = (min(x0), min(y0), max(x1), max(y1))
-        LTContainer.__init__(self, bbox)
+        LTComponent.__init__(self, bbox)
         self.cells = []
         self.columns = []
         self.rows = []
