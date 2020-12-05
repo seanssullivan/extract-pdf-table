@@ -3,8 +3,7 @@
 # Standard Imports
 import itertools
 import math
-from operator import itemgetter, pos
-from parser.pdfminer.callbacks import text
+from operator import itemgetter
 import statistics
 from typing import Iterable, List, Tuple, Union
 
@@ -84,22 +83,22 @@ def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> L
     # If columns have borders the page will contain LTRect objects
     # Even partial borders will allow us to determine column positions
     if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.height > 1 and r.width < 1):
-        columns = _columns_from_rectangles(rectangles)
-        if len(columns) > 1:
-            column_positions.update(columns)
+        positions = _column_positions_from_rectangles(rectangles)
+        if len(positions) > 1:
+            column_positions.update(positions)
         
     # Otherwise, we'll need to rely on textboxes to estimate column positions
     # Without borders, these dimensions may not account for padding
     if textboxes := select_textboxes(items, cb.within(boundaries), cb.text.not_blank()):
-        columns = _columns_from_textboxes(textboxes)
-        if len(columns) > 1:
-            column_positions.update(columns)
+        positions = _column_positions_from_textboxes(textboxes)
+        if len(positions) > 1:
+            column_positions.update(positions)
 
     # As a last resort, we'll also use textlines to estimate column positions
     # Without borders or textboxes, these dimensions may not account for padding
     if textlines := select_lines(items, cb.within(boundaries), cb.text.not_blank()):
-        columns = _columns_from_textlines(textlines)
-        column_positions.update(columns)
+        positions = _column_positions_from_textlines(textlines)
+        column_positions.update(positions)
 
     # Iterate over positions and remove overlapping columns
     unique_positions = merge_overlapping_positions(*column_positions)
@@ -109,9 +108,9 @@ def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> L
 
     # Expand columns to fit margins and padding
     margins = itemgetter(0, 2)(estimate_bounding_box(*items))
-    columns = _fit_columns_to_margins(sorted_positions, margins)
-    columns = _adjust_column_padding_based_on_alignment(columns, items)
-    return columns
+    positions = _fit_columns_to_margins(sorted_positions, margins)
+    positions = _adjust_column_padding_based_on_alignment(positions, items)
+    return positions
 
 
 def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List[Tuple]:
@@ -123,7 +122,7 @@ def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List
     # If rows have borders the page will contain LTRect objects
     # However, we can't determine row positions with only partial borders
     if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.width > 1 and r.height < 1):
-        rows = _rows_from_rectangles(rectangles)
+        rows = _row_positions_from_rectangles(rectangles)
         row_heights = list(map(lambda r: r[1] - r[0], rows))
         if len(rows) > 1 and statistics.stdev(row_heights) < 10:
             row_positions.update(rows)
@@ -131,8 +130,7 @@ def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List
     # Otherwise, we'll need to rely on textlines to estimate row positions
     # Without borders, these dimensions may not account for padding
     if textlines := select_lines(items, cb.within(boundaries), cb.text.not_blank(), lambda l: l.height > 1):
-        rows = _rows_from_textlines(textlines)
-        print("Textline Rows: ", rows)
+        rows = _row_positions_from_textlines(textlines)
         row_positions.update(rows)
 
     # Iterate over positions and remove overlapping rows
@@ -144,7 +142,7 @@ def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List
     return rows
 
 
-def _columns_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of columns from LTRect objects.
     
     This function is designed to help determine the positions of
@@ -159,12 +157,12 @@ def _columns_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = N
     sorted_positions = sorted(unique_positions, key=lambda col: col[0])
 
     # Pair positions into tuples representing the left and right sides of each column
-    columns = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
+    column_positions = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
 
-    return columns
+    return column_positions
 
 
-def _rows_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
+def _row_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of rows from LTRect objects.
     
     This function is designed to help determine the positions of
@@ -179,12 +177,12 @@ def _rows_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None
     sorted_positions = sorted(unique_positions, key=lambda row: row[0])
 
     # Pair positions into tuples representing the bottom and top of row
-    rows = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
+    row_positions = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
 
-    return rows
+    return row_positions
 
 
-def _columns_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of columns from LTTextBox objects.
     
     This function is designed to help determine the positions of
@@ -218,7 +216,7 @@ def _rows_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = Non
     return sorted_positions
 
 
-def _columns_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of columns from LTTextLine objects.
     
     This function is designed to help determine the positions of
@@ -235,7 +233,7 @@ def _columns_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = Non
     return sorted_positions
 
 
-def _rows_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
+def _row_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of rows from LTTextLine objects.
     
     This function is designed to help determine the positions of
@@ -332,7 +330,6 @@ def _adjust_row_padding_based_on_alignment(rows, items):
         textlines = select_lines(items, cb.between(row, axis=0), cb.text.not_blank())
         alignments.append(determine_alignment(*textlines))
 
-    print("Rows: ", rows)
     expanded_rows = []
     for idx, row in enumerate(rows):
         # Calculate top position
@@ -354,7 +351,6 @@ def _adjust_row_padding_based_on_alignment(rows, items):
         position = (bottom, top)
         expanded_rows.append(position)
     
-    print("Expanded Rows: ", expanded_rows)
     return expanded_rows
 
 
