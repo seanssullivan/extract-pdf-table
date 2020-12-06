@@ -15,19 +15,25 @@ from ..analyzers.divisions import determine_column_positions, determine_row_posi
 from ..selectors import select_lines
 
 
-def extract_table(container: Union[LTPage, Iterable[LTPage]], headers: int = 1) -> List:
+def extract_table(container: Union[LTPage, Iterable[LTPage]], headers: int = 1) -> pd.DataFrame:
     """Extract tabulated data from PDF page(s)."""
 
     # Ensure argument is an LTPage object
     if isinstance(container, LTPage):
-        return _extract_table_from_page(container, headers)
+        table = _extract_table_from_page(container, headers)
+    
+    elif isinstance(container, Iterable):
+        dataframes = [extract_table(page, headers=headers) for page in container if isinstance(page, LTPage)]
+        table = pd.concat(dataframes, ignore_index=True)
     
     # otherwise return an empty list
     else:
         raise TypeError(f"{type(container)!s} is not a valid argument type")
+    
+    return table
 
 
-def _extract_table_from_page(page: LTPage, headers: int = 1) -> List:
+def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
     """Extract tabulated data from a PDF page.
 
     This function is designed to help extract tables
@@ -35,10 +41,8 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> List:
 
     # Determine positions of rows and columns
     rows = determine_row_positions(page)
-    print("Rows: ", rows)
     cols = determine_column_positions(page)
-    print("Columns: ", cols)
-
+    
     # Extract field names
     fields = extract_field_names(page, rows, cols, headers)
 
@@ -53,7 +57,7 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> List:
     return table
 
 
-def extract_field_names(container: LTContainer, rows: List, columns: List, headers: int = 1) -> List:
+def extract_field_names(container: LTContainer, rows: List, columns: List, headers: int = 1) -> pd.Index:
     """Return the field names found inside the header rows."""
     # If there are no headers, assign each field a number
     if headers == 0:

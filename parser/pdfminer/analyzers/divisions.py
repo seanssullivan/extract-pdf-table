@@ -76,29 +76,38 @@ def determine_row_positions(*items: Union[LTContainer, Tuple], boundaries: Tuple
 
 def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of columns from LTItems.
+
+    Columns are discovered by analyzing LTItems in order of decreasing primacy:
+    The boxes formed by LTRect objects sometimes contain multiple textboxes and
+    are therefore analyzed first; textboxes nearly always align with columns and
+    are therefore analyzed second; while LTTextLine objects typically contain
+    data from a single cell and are therefore analyzed last.
+
+    We could determine column positions by only analyzing LTTextLine objects;
+    however, empty cells and varying alignments produce unreliable results.
+    In addition, by working downwards, we maintain as much of the margins
+    and padding as possible.
     
-    This function is designed to help determine the positions of
+    This function was designed to help determine the positions of
     columns and should not be imported into other modules."""
     column_positions = set()
     # If columns have borders the page will contain LTRect objects
     # Even partial borders will allow us to determine column positions
     if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.height > 1 and r.width < 1):
         positions = _column_positions_from_rectangles(rectangles)
-        if len(positions) > 1:
-            column_positions.update(positions)
+        _update_positions(column_positions, positions)
         
     # Otherwise, we'll need to rely on textboxes to estimate column positions
     # Without borders, these dimensions may not account for padding
     if textboxes := select_textboxes(items, cb.within(boundaries), cb.text.not_blank()):
         positions = _column_positions_from_textboxes(textboxes)
-        if len(positions) > 1:
-            column_positions.update(positions)
+        _update_positions(column_positions, positions)
 
     # As a last resort, we'll also use textlines to estimate column positions
     # Without borders or textboxes, these dimensions may not account for padding
     if textlines := select_lines(items, cb.within(boundaries), cb.text.not_blank()):
         positions = _column_positions_from_textlines(textlines)
-        column_positions.update(positions)
+        _update_positions(column_positions, positions)
 
     # Iterate over positions and remove overlapping columns
     unique_positions = merge_overlapping_positions(*column_positions)
@@ -106,7 +115,7 @@ def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> L
     # Sort positions from left to right
     sorted_positions = sorted(unique_positions, key=lambda col: col[0])
 
-    # Expand columns to fit margins and padding
+    # Expand columns to better fit margins and padding
     margins = itemgetter(0, 2)(estimate_bounding_box(*items))
     positions = _fit_columns_to_margins(sorted_positions, margins)
     positions = _adjust_column_padding_based_on_alignment(positions, items)
@@ -115,31 +124,49 @@ def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> L
 
 def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List[Tuple]:
     """Determine the positions of rows from LTItems.
+
+    Rows are discovered by analyzing LTItems in order of decreasing primacy:
+    textboxes often exceed the vertical boundaries set by LTRect objects and
+    are therefore analyzed first; LTRect objects can surround multiple lines
+    and are therefore analyzed second; while LTTextLine objects typically
+    contain data from a single cell and are therefore analyzed last.
+
+    We could determine row positions by only analyzing LTTextLine objects;
+    however, empty cells and varying alignments produce unreliable results.
+    In addition, by working downwards, we maintain as much of the margins
+    and padding as possible.
     
-    This function is designed to help determine the positions of
+    This function was designed to help determine the positions of
     rows and should not be imported into other modules."""
     row_positions = set()
+    # Begin by using textboxes to narrow-down row positions
+    # These dimensions typically exceed the actual size of rows
+    if textboxes := select_textboxes(items, cb.within(boundaries), cb.text.not_blank()):
+        positions = _row_positions_from_textboxes(textboxes)
+        _update_positions(row_positions, positions)
+
     # If rows have borders the page will contain LTRect objects
-    # However, we can't determine row positions with only partial borders
+    # However, we won't determine row positions with only partial borders
     if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.width > 1 and r.height < 1):
-        rows = _row_positions_from_rectangles(rectangles)
-        row_heights = list(map(lambda r: r[1] - r[0], rows))
-        if len(rows) > 1 and statistics.stdev(row_heights) < 10:
-            row_positions.update(rows)
+        positions = _row_positions_from_rectangles(rectangles)
+        _update_positions(row_positions, positions)
 
     # Otherwise, we'll need to rely on textlines to estimate row positions
     # Without borders, these dimensions may not account for padding
     if textlines := select_lines(items, cb.within(boundaries), cb.text.not_blank(), lambda l: l.height > 1):
-        rows = _row_positions_from_textlines(textlines)
-        row_positions.update(rows)
+        positions = _row_positions_from_textlines(textlines)
+        _update_positions(row_positions, positions)
 
     # Iterate over positions and remove overlapping rows
     unique_positions = merge_overlapping_positions(*row_positions)
 
     # Sort positions from top to bottom
     sorted_positions = sorted(unique_positions, key=lambda row: row[0], reverse=True)
-    rows = _adjust_row_padding_based_on_alignment(sorted_positions, items)
-    return rows
+    assert all(map(lambda pos: isinstance(pos, tuple), sorted_positions))
+
+    # Expand rows to better fit padding
+    positions = _adjust_row_padding_based_on_alignment(sorted_positions, items)
+    return positions
 
 
 def _column_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
@@ -199,7 +226,7 @@ def _column_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries:
     return sorted_positions
 
 
-def _rows_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List:
+def _row_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List:
     """Determine the positions of rows from LTTextBox objects.
     
     This function is designed to help determine the positions of
@@ -280,6 +307,17 @@ def _rows_from_positions(positions: Iterable[Tuple], boundaries: Tuple = None) -
     sorted_positions = sorted(unique_positions, key=lambda row: row[0])
 
     return sorted_positions
+
+
+def _update_positions(found: set, new: list) -> set:
+    """Update set of positions after checking whether any will be overwritten.
+    
+    This function is designed to help determine the positions of
+    columns and should not be imported into other modules."""
+    children = lambda pos: list(filter(cb.between(pos, axis=0), new))
+    remove = [position for position in found if len(children(position)) > 1]
+    found.difference_update(set(remove))
+    found.update(new)
 
 
 def _fit_columns_to_margins(columns, margins):

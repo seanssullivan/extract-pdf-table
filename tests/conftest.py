@@ -36,6 +36,12 @@ def paragraphs():
 
 
 @pytest.fixture(scope="package")
+def columns():
+    with open(os.path.join(SAMPLES, '04_text_columns.pdf'), 'rb') as pdf:
+        return list(extract_pages(pdf))
+
+
+@pytest.fixture(scope="package")
 def table_borders():
     with open(os.path.join(SAMPLES, '05_table_borders.pdf'), 'rb') as pdf:
         return list(extract_pages(pdf))

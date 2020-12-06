@@ -108,6 +108,8 @@ def _dimensionally_differentiated_text(container: LTTextContainer, *callbacks: C
             divergent_lines.append(line)
     
     return divergent_lines
+    # row_heights = list(map(lambda r: r[1] - r[0], positions))
+    # statistics.stdev(row_heights) < 10
 
 
 def _positionally_differentiated_text(container: LTTextContainer, *callbacks: Callable) -> List:

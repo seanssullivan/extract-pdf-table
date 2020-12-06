@@ -221,13 +221,13 @@ class TestExtractingTable():
         )
         pd.testing.assert_frame_equal(actual, expected)
 
-    # def test_returns_tables_that_span_multiple_pages(self, page_overflow) -> None:
-    #     result = extract_table(page_overflow[0:3])
-    #     assert result.shape == (100, 5)
-    #     pd.testing.assert_index_equal(
-    #         result.columns, 
-    #         pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
-    #     )
+    def test_returns_tables_that_span_multiple_pages(self, page_overflow) -> None:
+        result = extract_table(page_overflow[0:3])
+        assert result.shape == (100, 5)
+        pd.testing.assert_index_equal(
+            result.columns, 
+            pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
+        )
 
     # def test_returns_tables_on_multiple_pages_without_repeating_headers(self, page_overflow) -> None:
     #     result = extract_table(page_overflow[3:6])

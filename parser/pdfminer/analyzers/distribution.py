@@ -4,20 +4,19 @@
 from typing import Text, Tuple, Union
 
 # Third-Party Imports
-from pdfminer.layout import LTContainer
+from pdfminer.layout import LTItem, LTAnno
 
 
-def determine_distribution(*positions: Union[LTContainer, Tuple]) -> Text:
+def determine_distribution(*positions: Union[LTItem, Tuple]) -> Text:
     """Return whether the positions provided are distributed horizontally or vertically."""
-
     # If only one element is provided, apply function to its children
-    if len(positions) == 1 and isinstance(positions[0], LTContainer):
+    if len(positions) == 1 and isinstance(positions[0], LTItem):
         return determine_distribution(*list(positions[0]))
 
     # Convert any LTContainers to tuples of their positions
-    if all(map(lambda pos: isinstance(pos, LTContainer), positions)):
-        positions = list(map(lambda p: (p.x0, p.y0, p.x1, p.y1), positions))
-
+    if all(map(lambda pos: isinstance(pos, LTItem), positions)):
+        positions = [(p.x0, p.y0, p.x1, p.y1) for p in positions if not isinstance(p, LTAnno)]
+    
     overlaps = []
     for index, current in enumerate(positions):
         for neighbor in positions[index + 1:]:
@@ -38,6 +37,10 @@ def determine_distribution(*positions: Union[LTContainer, Tuple]) -> Text:
 
 def _calculate_horizontal_overlap(first: Tuple, second: Tuple) -> float:
     """Calculate horizontal overlap of two bounding boxes."""
+    # Ensure arguments are both tuples
+    if not isinstance(first, Tuple) or not isinstance(second, Tuple):
+        raise ValueError
+
     # if first overlaps second on the left
     if first[0] <= second[0] and first[2] > second[0] and first[2] <= second[2]:
         horizontal_overlap = first[2] - second[0]
@@ -63,6 +66,10 @@ def _calculate_horizontal_overlap(first: Tuple, second: Tuple) -> float:
 
 def _calculate_vertical_overlap(first: Tuple, second: Tuple) -> float:
     """Calculate vertical overlap of two bounding boxes."""
+    # Ensure arguments are both tuples
+    if not isinstance(first, Tuple) or not isinstance(second, Tuple):
+        raise ValueError
+
     # if first overlaps second on the top
     if first[1] <= second[1] and first[3] > second[1] and first[3] <= second[3]:
         vertical_overlap = first[3] - second[1]
