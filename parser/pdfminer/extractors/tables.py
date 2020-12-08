@@ -2,7 +2,6 @@
 
 # Standard Imports
 from functools import reduce
-import logging
 from typing import Dict, Iterable, List, Text, Tuple, Union
 
 # Third-Party Imports
@@ -12,6 +11,7 @@ from pdfminer.layout import LTPage, LTContainer
 # Local Imports
 from .. import callbacks as cb
 from ..analyzers.divisions import determine_column_positions, determine_row_positions
+from ..analyzers.sections import determine_header_positions
 from ..selectors import select_lines
 
 
@@ -33,6 +33,7 @@ def extract_table(container: Union[LTPage, Iterable[LTPage]], headers: int = 1) 
     return table
 
 
+# TODO: Refactor to use determine header position function. 
 def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
     """Extract tabulated data from a PDF page.
 
@@ -42,6 +43,9 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
     # Determine positions of rows and columns
     rows = determine_row_positions(page)
     cols = determine_column_positions(page)
+
+    # Determine position of header
+    headers = determine_header_positions(page)
     
     # Extract field names
     fields = extract_field_names(page, rows, cols, headers)
@@ -57,6 +61,7 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
     return table
 
 
+# TODO: Refactor to make use of coordinates provided by determine_header_positions.
 def extract_field_names(container: LTContainer, rows: List, columns: List, headers: int = 1) -> pd.Index:
     """Return the field names found inside the header rows."""
     # If there are no headers, assign each field a number
