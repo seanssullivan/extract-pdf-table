@@ -38,7 +38,7 @@ class TestExtractingPages():
         result = extract_pages(test_pages)
         for page in result:
             assert isinstance(page, LTPage)
-    
+
     def test_returns_correct_number_of_pages(self, test_pages) -> None:
         result = list(extract_pages(test_pages))
         assert len(result) == 3
@@ -124,13 +124,13 @@ class TestExtractFieldNames():
     def test_returns_pandas_index(self, table_borders) -> None:
         rows = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
         cols = [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
-        result = extract_field_names(table_borders[0], rows, cols, headers=1)
+        result = extract_field_names(table_borders[0], rows, cols, header_rows=1)
         assert isinstance(result, pd.Index)
 
     def test_returns_correct_text(self, borders) -> None:
         rows = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
         cols = [(72.5, 164.0), (164.6, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
-        actual = extract_field_names(borders, rows, cols, headers=1)
+        actual = extract_field_names(borders, rows, cols, header_rows=1)
         expected = pd.Index(["IdField", "NameField", "TestField1", "TestField2", "TestField3"])
         pd.testing.assert_index_equal(actual, expected)
 
@@ -140,7 +140,7 @@ class TestExtractingTable():
     @pytest.fixture(scope="function", params=[i for i in range(5)])
     def borders(self, request, table_borders):
         yield table_borders[request.param]
-    
+
     def test_returns_dataframe(self, table_borders) -> None:
         result = extract_table(table_borders[0])
         assert isinstance(result, pd.DataFrame)
@@ -196,7 +196,7 @@ class TestExtractingTable():
                   ["5", 'Name5', '', 'Value9', '']]
         )
         pd.testing.assert_frame_equal(actual, expected)
-    
+
     def test_returns_correct_table_when_missing_many_values(self, missing_values) -> None:
         actual = extract_table(missing_values[3])
         expected = pd.DataFrame(
@@ -225,7 +225,7 @@ class TestExtractingTable():
         result = extract_table(page_overflow[0:3])
         assert result.shape == (100, 5)
         pd.testing.assert_index_equal(
-            result.columns, 
+            result.columns,
             pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
         )
 
@@ -233,6 +233,6 @@ class TestExtractingTable():
     #     result = extract_table(page_overflow[3:6])
     #     assert result.shape == (100, 5)
     #     pd.testing.assert_index_equal(
-    #         result.columns, 
+    #         result.columns,
     #         pd.Index(['IdField', 'NameField', 'TestField1', 'TestField2', 'TestField3'])
     #     )

@@ -21,19 +21,19 @@ def extract_table(container: Union[LTPage, Iterable[LTPage]], headers: int = 1) 
     # Ensure argument is an LTPage object
     if isinstance(container, LTPage):
         table = _extract_table_from_page(container, headers)
-    
+
     elif isinstance(container, Iterable):
         dataframes = [extract_table(page, headers=headers) for page in container if isinstance(page, LTPage)]
         table = pd.concat(dataframes, ignore_index=True)
-    
+
     # otherwise return an empty list
     else:
         raise TypeError(f"{type(container)!s} is not a valid argument type")
-    
+
     return table
 
 
-# TODO: Refactor to use determine header position function. 
+# TODO: Refactor to use determine header position function.
 def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
     """Extract tabulated data from a PDF page.
 
@@ -46,31 +46,32 @@ def _extract_table_from_page(page: LTPage, headers: int = 1) -> pd.DataFrame:
 
     # Determine position of header
     headers = determine_header_positions(page)
-    
+    num_header_rows = len(headers)
+
     # Extract field names
-    fields = extract_field_names(page, rows, cols, headers)
+    fields = extract_field_names(page, rows, cols, num_header_rows)
 
     # Extract table entries
     table_entries = []
-    for row in rows[headers:]:
+    for row in rows[num_header_rows:]:
         table_entry = extract_table_entry(page, row, cols, fields)
         table_entries.append(table_entry)
-    
+
     # Convert table entries into DataFrame
     table = pd.DataFrame(table_entries)
     return table
 
 
 # TODO: Refactor to make use of coordinates provided by determine_header_positions.
-def extract_field_names(container: LTContainer, rows: List, columns: List, headers: int = 1) -> pd.Index:
+def extract_field_names(container: LTContainer, rows: List, columns: List, header_rows: int = 1) -> pd.Index:
     """Return the field names found inside the header rows."""
     # If there are no headers, assign each field a number
-    if headers == 0:
+    if header_rows == 0:
         return range(len(columns))
 
     # If header takes up multiple lines, merge them
-    if headers > 1:
-        coordinates = list(zip(*rows[headers - 1]))
+    if header_rows > 1:
+        coordinates = list(zip(*rows[header_rows - 1]))
         header_row = (min(coordinates[0]), max(coordinates[1]))
     else:
         header_row = rows[0]
