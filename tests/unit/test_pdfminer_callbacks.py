@@ -4,13 +4,13 @@
 from dataclasses import dataclass
 
 # Local Imports
-from parser.pdfminer import callbacks
+from src.pdfminer import callbacks
 
 
 class Container:
     def __init__(self, text: str = ''):
         self._text = text
-    
+
     def get_text(self):
         return self._text
 
@@ -67,7 +67,7 @@ class TestCallbackWithin():
         callback = callbacks.within()
         result = callback(test_element)
         assert isinstance(result, bool)
-    
+
     def test_returns_true_if_inside_boundary(self) -> None:
         test_element = LayoutItem(5, 5, 15, 15)
         test_boundary = (0, 0, 20, 20)
@@ -91,7 +91,7 @@ class TestCallbackWithin():
 
 
 class TestCallbackTextEquals():
-    
+
     def test_returns_boolean(self) -> None:
         test_element = Container('test')
         callback = callbacks.text.equals('test')
@@ -109,10 +109,10 @@ class TestCallbackTextEquals():
         callback = callbacks.text.equals('test')
         result = callback(test_element)
         assert result is False
-    
+
 
 class TestCallbackTextDoesNotEqual():
-    
+
     def test_returns_boolean(self) -> None:
         test_element = Container('test')
         callback = callbacks.text.does_not_equal('test')
@@ -130,10 +130,10 @@ class TestCallbackTextDoesNotEqual():
         callback = callbacks.text.does_not_equal('test')
         result = callback(test_element)
         assert result is False
-    
+
 
 class TestCallbackTextIncludes():
-    
+
     def test_returns_boolean(self) -> None:
         test_element = Container('test')
         callback = callbacks.text.includes('test')
@@ -151,7 +151,7 @@ class TestCallbackTextIncludes():
         callback = callbacks.text.includes('s')
         result = callback(test_element)
         assert result is False
-    
+
     def test_returns_true_if_text_includes_all_strings(self) -> None:
         test_element = Container('test')
         callback = callbacks.text.includes('e', 's', 't')

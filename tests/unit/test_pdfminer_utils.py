@@ -1,8 +1,8 @@
 # tests/unit/test_pdfminer_utils.py
 
 # Local Imports
-from parser.pdfminer.utils import positions
-from parser.pdfminer.utils import merge_overlapping_positions
+from src.pdfminer.utils import positions
+from src.pdfminer.utils import merge_overlapping_positions
 
 
 class TestMergeOverlappingPositions():
@@ -18,7 +18,7 @@ class TestMergeOverlappingPositions():
             (0, 10), (5, 10), (15, 25), (20, 25), (30, 40), (35, 45), (50, 60), (55, 65)
         ])
         assert len(result) == len(set(result))
-    
+
     def test_returns_correct_positions(self):
         expected = [(72.025, 72.525), (539.73, 540.23)]
         actual = merge_overlapping_positions(*[

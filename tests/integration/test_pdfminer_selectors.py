@@ -8,11 +8,11 @@ from pdfminer.layout import LTChar, LTPage, LTRect, LTTextBox, LTTextLine
 import pytest
 
 # Local Imports
-from parser.pdfminer.selectors import select_pages
-from parser.pdfminer.selectors import select_textboxes
-from parser.pdfminer.selectors import select_rectangles
-from parser.pdfminer.selectors import select_lines
-from parser.pdfminer.selectors import select_characters
+from src.pdfminer.selectors import select_pages
+from src.pdfminer.selectors import select_textboxes
+from src.pdfminer.selectors import select_rectangles
+from src.pdfminer.selectors import select_lines
+from src.pdfminer.selectors import select_characters
 
 
 class TestSelectPages():
@@ -118,12 +118,12 @@ class TestSelectLines():
         result = select_lines(textboxes)
         for line in result:
             assert isinstance(line, LTTextLine)
-    
+
     def test_returns_lines_from_single_page(self, pages) -> None:
         result = select_lines(pages[0])
         for line in result:
             assert isinstance(line, LTTextLine)
-    
+
     def test_returns_lines_from_multiple_pages(self, pages) -> None:
         result = select_lines(pages)
         for line in result:
@@ -137,7 +137,7 @@ class TestSelectLines():
         callbacks = [lambda box:  "b" in box.get_text(), lambda box: box.y0 > 500,  lambda box: box.y1 < 600]
         result = list(select_lines(text, *callbacks))
         assert len(result) == 4
-    
+
     def test_returns_empty_list_when_no_matches_with_callback(self, text) -> None:
         callbacks = [lambda box:  "z" in box.get_text()]
         result = list(select_lines(text, *callbacks))
@@ -182,7 +182,7 @@ class TestSelectCharacters():
         characters = select_characters(pages[0])
         for character in characters:
             assert isinstance(character, LTChar)
-        
+
     def test_returns_characters_from_multiple_pages(self, pages) -> None:
         characters = select_characters(pages)
         for character in characters:

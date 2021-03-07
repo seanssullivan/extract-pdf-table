@@ -4,11 +4,11 @@
 from dataclasses import dataclass
 
 # Local Imports
-from parser.pdfminer.abstractors import get_fontname
-from parser.pdfminer.abstractors import get_fontsize
-from parser.pdfminer.abstractors import get_fontweight
-from parser.pdfminer.abstractors import get_typeface
-from parser.pdfminer.abstractors import get_position
+from src.pdfminer.abstractors import get_fontname
+from src.pdfminer.abstractors import get_fontsize
+from src.pdfminer.abstractors import get_fontweight
+from src.pdfminer.abstractors import get_typeface
+from src.pdfminer.abstractors import get_position
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class TestGetFontname():
         char = Char('BCDEEE+Arial-Bold', 12)
         result = get_fontname(char)
         assert isinstance(result, str)
-    
+
     def test_returns_fontname(self):
         char = Char('BCDEEE+Arial-Bold', 12)
         result = get_fontname(char)
@@ -39,7 +39,7 @@ class TestGetFontsize():
         char = Char('Calibri', 12)
         result = get_fontsize(char)
         assert isinstance(result, int)
-    
+
     def test_returns_fontsize(self):
         char = Char('Calibri', 12)
         result = get_fontsize(char)
@@ -52,7 +52,7 @@ class TestGetFontweight():
         char = Char('BCDEEE+Arial-Bold', 10)
         result = get_fontweight(char)
         assert isinstance(result, str)
-    
+
     def test_returns_fontweight(self):
         char = Char('BCDEEE+Arial-Bold', 10)
         result = get_fontweight(char)
@@ -68,7 +68,7 @@ class TestGetTypeface():
         char = Char('BCDEEE+TimesNewRoman-Italic', 12)
         result = get_typeface(char)
         assert isinstance(result, str)
-    
+
     def test_returns_typeface(self):
         char = Char('BCDEEE+TimesNewRoman-Italic', 12)
         result = get_typeface(char)
@@ -89,9 +89,8 @@ class TestGetPosition():
         bbox = Bbox(0, 10, 10, 0)
         result = get_position(bbox)
         assert isinstance(result, tuple)
-    
+
     def test_returns_typeface(self):
         bbox = Bbox(0, 10, 10, 0)
         result = get_position(bbox)
         assert result == (0, 10, 10, 0)
-    

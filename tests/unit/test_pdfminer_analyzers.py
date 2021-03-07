@@ -1,10 +1,10 @@
 # tests/unit/test_pdfminer_analyzers.py
 
 # Local Imports
-from parser.pdfminer.analyzers.alignment import determine_alignment
-from parser.pdfminer.analyzers.distribution import determine_distribution
-from parser.pdfminer.analyzers.divisions import determine_column_positions
-from parser.pdfminer.analyzers.divisions import determine_row_positions
+from src.pdfminer.analyzers.alignment import determine_alignment
+from src.pdfminer.analyzers.distribution import determine_distribution
+from src.pdfminer.analyzers.divisions import determine_column_positions
+from src.pdfminer.analyzers.divisions import determine_row_positions
 
 
 class TestDetermineAlignment():
@@ -13,7 +13,7 @@ class TestDetermineAlignment():
         test_positions = [(0, 0, 10, 10), (0, 10, 10, 20)]
         result = determine_alignment(*test_positions)
         assert isinstance(result, str)
-    
+
     def test_returns_left_when_left_aligned(self) -> None:
         test_positions = [(0, 40, 10, 50), (0, 30, 6, 40), (0, 20, 30, 30), (0, 10, 20, 20), (0, 0, 14, 10)]
         result = determine_alignment(*test_positions)
@@ -23,7 +23,7 @@ class TestDetermineAlignment():
         test_positions = [(10, 40, 20, 50), (12, 30, 18, 40), (0, 20, 30, 30), (5, 10, 25, 20), (8, 0, 22, 10)]
         result = determine_alignment(*test_positions)
         assert result == 'center'
-    
+
     def test_returns_right_when_right_aligned(self) -> None:
         test_positions = [(40, 40, 50, 50), (44, 30, 50, 40), (20, 20, 50, 30), (30, 10, 50, 20), (36, 0, 50, 10)]
         result = determine_alignment(*test_positions)
@@ -38,7 +38,7 @@ class TestDetermineAlignment():
         test_positions = [(40, 10, 50, 20), (30, 12, 40, 18), (20, 0, 30, 30), (10, 5, 20, 25), (0, 8, 10, 22)]
         result = determine_alignment(*test_positions)
         assert result == 'middle'
-    
+
     def test_returns_bottom_when_bottom_aligned(self) -> None:
         test_positions = [(0, 0, 10, 14), (10, 0, 20, 20), (20, 0, 30, 30), (30, 0, 40, 6), (40, 0, 50, 10)]
         result = determine_alignment(*test_positions)
@@ -51,7 +51,7 @@ class TestDetermineDistribution():
         test_positions = [(0, 0, 10, 10), (0, 10, 10, 20)]
         result = determine_distribution(*test_positions)
         assert isinstance(result, str)
-    
+
     def test_returns_horizontal_when_positions_aligned_vertically(self) -> None:
         test_positions = [(0, 0, 10, 10), (10, 0, 20, 10)]
         result = determine_distribution(*test_positions)

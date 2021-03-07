@@ -4,8 +4,8 @@
 import pytest
 
 # Local Imports
-from parser.pdfminer.analyzers.divisions import determine_column_positions
-from parser.pdfminer.analyzers.divisions import determine_row_positions
+from src.pdfminer.analyzers.divisions import determine_column_positions
+from src.pdfminer.analyzers.divisions import determine_row_positions
 
 
 def positionsAlmostEqual(first: list, second: list, delta: float) -> bool:
@@ -46,12 +46,12 @@ class TestDetermineColumnPositions():
         expected = column.pageid  # sample file has same number of columns per page as the page number
         result = determine_column_positions(column)
         assert len(result) == expected
-        
+
     def test_returns_correct_column_positions_when_working_with_borders(self, border) -> None:
         expected = [(72.5, 164.0), (164.5, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         actual = determine_column_positions(border)
         assert positionsAlmostEqual(actual, expected, delta=10)
-    
+
     def test_returns_correct_column_positions_when_working_with_missing_values(self, values) -> None:
         expected = [(72.5, 164.0), (164.5, 259.1), (259.6, 352.7), (353.2, 446.2), (446.7, 539.7)]
         actual = determine_column_positions(values)
@@ -87,7 +87,7 @@ class TestDetermineRowPositions():
         expected = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
         actual = determine_row_positions(border)
         assert positionsAlmostEqual(actual, expected, delta=5)
-    
+
     def test_returns_correct_row_positions_when_working_with_missing_values(self, values) -> None:
         expected = [(706.0, 719.5), (692.2, 705.5), (678.2, 691.7), (664.2, 677.7), (650.2, 663.7), (636.5, 649.7)]
         actual = determine_row_positions(values)

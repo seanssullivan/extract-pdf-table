@@ -61,7 +61,7 @@ def text_alignment():
 
 # @pytest.fixture(scope="package")
 # def data_types():
-#     with open(os.path.join(SAMPLES, '06_data_types.pdf'), 'rb') as pdf:
+#     with open(os.path.join(SAMPLES, '08_data_types.pdf'), 'rb') as pdf:
 #         return list(extract_pages(pdf))
 
 

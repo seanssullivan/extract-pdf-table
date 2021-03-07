@@ -4,10 +4,10 @@
 import pytest
 
 # Local Imports
-from parser.pdfminer.reducers.design import reduce_fontnames
-from parser.pdfminer.reducers.design import reduce_fontsizes
-from parser.pdfminer.reducers.design import reduce_fontweights
-from parser.pdfminer.reducers.design import reduce_typefaces
+from src.pdfminer.reducers.design import reduce_fontnames
+from src.pdfminer.reducers.design import reduce_fontsizes
+from src.pdfminer.reducers.design import reduce_fontweights
+from src.pdfminer.reducers.design import reduce_typefaces
 
 
 class TestReduceFontNames():
@@ -31,7 +31,7 @@ class TestReduceFontNames():
         actual = reduce_fontnames(set(), fonts)
         expected = set(['ArialMT', 'Calibri-Bold', 'Georgia-Italic'])
         assert actual == expected
-    
+
 
 class TestReduceFontSizes():
 
@@ -40,7 +40,7 @@ class TestReduceFontSizes():
         assert isinstance(result, list)
         for fontsize in result:
             assert isinstance(fontsize, float)
-    
+
     def test_returns_correct_fontsize_when_only_one(self, fonts) -> None:
         actual = reduce_fontsizes(set(), fonts[0])
         expected = set([8.0])
@@ -59,7 +59,7 @@ class TestReduceFontWeights():
         assert isinstance(result, list)
         for fontweight in result:
             assert isinstance(fontweight, str)
-    
+
     def test_returns_correct_fontweight_when_only_one(self, fonts) -> None:
         actual = reduce_fontweights(set(), fonts[0])
         expected = set(['Regular'])
