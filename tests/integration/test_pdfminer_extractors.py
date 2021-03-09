@@ -10,13 +10,13 @@ from pdfminer.layout import LTPage
 import pytest
 
 # Local Imports
-from src.pdfminer.extractors.pages import extract_pages
-from src.pdfminer.extractors.tables import extract_cell_content
-from src.pdfminer.extractors.tables import extract_column_content
-from src.pdfminer.extractors.tables import extract_row_content
-from src.pdfminer.extractors.tables import extract_table_entry
-from src.pdfminer.extractors.tables import extract_field_names
-from src.pdfminer.extractors.tables import extract_table
+from src.parser.extractors.pages import extract_pages
+from src.parser.extractors.tables import extract_cell_content
+from src.parser.extractors.tables import extract_column_content
+from src.parser.extractors.tables import extract_row_content
+from src.parser.extractors.tables import extract_table_entry
+from src.parser.extractors.tables import extract_field_names
+from src.parser.extractors.tables import extract_table
 
 
 SAMPLES = 'tests/samples/'

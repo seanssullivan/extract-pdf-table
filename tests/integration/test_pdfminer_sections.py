@@ -7,7 +7,7 @@ import itertools
 import pytest
 
 # Local Imports
-from src.pdfminer.analyzers.sections import determine_header_positions
+from src.parser.analyzers.sections import determine_header_positions
 
 
 def listAlmostEqual(first: list, second: list, delta: float = ...) -> None:

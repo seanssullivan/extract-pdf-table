@@ -1,10 +1,10 @@
 # tests/unit/test_pdfminer_analyzers.py
 
 # Local Imports
-from src.pdfminer.analyzers.alignment import determine_alignment
-from src.pdfminer.analyzers.distribution import determine_distribution
-from src.pdfminer.analyzers.divisions import determine_column_positions
-from src.pdfminer.analyzers.divisions import determine_row_positions
+from src.parser.analyzers.alignment import determine_alignment
+from src.parser.analyzers.distribution import determine_distribution
+from src.parser.analyzers.divisions import determine_column_positions
+from src.parser.analyzers.divisions import determine_row_positions
 
 
 class TestDetermineAlignment():

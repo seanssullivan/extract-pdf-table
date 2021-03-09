@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 
 # Local Imports
-from src.pdfminer import callbacks
+from src.parser import callbacks
 
 
 class Container:

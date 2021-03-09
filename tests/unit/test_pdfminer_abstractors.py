@@ -4,11 +4,11 @@
 from dataclasses import dataclass
 
 # Local Imports
-from src.pdfminer.abstractors import get_fontname
-from src.pdfminer.abstractors import get_fontsize
-from src.pdfminer.abstractors import get_fontweight
-from src.pdfminer.abstractors import get_typeface
-from src.pdfminer.abstractors import get_position
+from src.parser.abstractors import get_fontname
+from src.parser.abstractors import get_fontsize
+from src.parser.abstractors import get_fontweight
+from src.parser.abstractors import get_typeface
+from src.parser.abstractors import get_position
 
 
 @dataclass(frozen=True)

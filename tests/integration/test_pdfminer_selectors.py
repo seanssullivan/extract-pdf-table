@@ -8,11 +8,11 @@ from pdfminer.layout import LTChar, LTPage, LTRect, LTTextBox, LTTextLine
 import pytest
 
 # Local Imports
-from src.pdfminer.selectors import select_pages
-from src.pdfminer.selectors import select_textboxes
-from src.pdfminer.selectors import select_rectangles
-from src.pdfminer.selectors import select_lines
-from src.pdfminer.selectors import select_characters
+from src.parser.selectors import select_pages
+from src.parser.selectors import select_textboxes
+from src.parser.selectors import select_rectangles
+from src.parser.selectors import select_lines
+from src.parser.selectors import select_characters
 
 
 class TestSelectPages():

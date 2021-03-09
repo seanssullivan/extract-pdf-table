@@ -4,8 +4,8 @@
 import pytest
 
 # Local Imports
-from src.pdfminer.analyzers.divisions import determine_column_positions
-from src.pdfminer.analyzers.divisions import determine_row_positions
+from src.parser.analyzers.divisions import determine_column_positions
+from src.parser.analyzers.divisions import determine_row_positions
 
 
 def positionsAlmostEqual(first: list, second: list, delta: float) -> bool:

@@ -1,8 +1,8 @@
 # tests/unit/test_pdfminer_utils.py
 
 # Local Imports
-from src.pdfminer.utils import positions
-from src.pdfminer.utils import merge_overlapping_positions
+from src.parser.utils import positions
+from src.parser.utils import merge_overlapping_positions
 
 
 class TestMergeOverlappingPositions():
