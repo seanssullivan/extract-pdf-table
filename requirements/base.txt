@@ -1,0 +1,8 @@
+# Base requirements
+numpy
+opencv-python
+pandas
+pdf2image
+pdfminer.six
+pytesseract
+tqdm

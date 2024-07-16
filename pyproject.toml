@@ -1,0 +1,24 @@
+[dev-dependencies]
+black = { version = "^22.10.0", python = "^3.9" }
+
+[build-system]
+requires = ["setuptools >= 44.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 79
+exclude = '''
+
+(
+    /(
+          \.eggs      # exclude a few common directories in the
+        | \.git       # root of the project
+        | \.mypy_cache
+        | \.tox
+        | \.venv
+        | build
+        | dist
+        | env
+    )
+)
+'''

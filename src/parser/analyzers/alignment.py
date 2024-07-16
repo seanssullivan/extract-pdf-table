@@ -42,7 +42,7 @@ def determine_alignment(*positions: Union[LTItem, Tuple]) -> Text:
     return min(stdev, key=stdev.get)
 
 
-def _calculate_stdev(alignment, *positions: Union[Tuple]) -> float:
+def _calculate_stdev(alignment, *positions: Tuple) -> float:
     """Calculate the standard deviation.
 
     This function is designed to help determine alignment and

@@ -15,14 +15,12 @@ from .. import callbacks as cb
 from .alignment import determine_alignment
 from ..reducers import reduce_positions
 from ..utils import estimate_bounding_box, merge_overlapping_positions
-from ..selectors import (
-    select_lines,
-    select_rectangles,
-    select_textboxes
-)
+from ..selectors import select_lines, select_rectangles, select_textboxes
 
 
-def determine_column_positions(*items: Union[LTItem, Tuple], boundaries: Tuple = None) -> List[Tuple]:
+def determine_column_positions(
+    *items: Union[LTItem, Tuple], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns using the provided layout items."""
     # If argument is an LTPage, use its child containers
     if len(items) == 1 and isinstance(items[0], LTPage):
@@ -48,7 +46,9 @@ def determine_column_positions(*items: Union[LTItem, Tuple], boundaries: Tuple =
     return sorted_column_positions
 
 
-def determine_row_positions(*items: Union[LTContainer, Tuple], boundaries: Tuple = None) -> List[Tuple]:
+def determine_row_positions(
+    *items: Union[LTContainer, Tuple], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of rows using the provided layout items."""
     # If argument is an LTPage, use its child containers
     if len(items) == 1 and isinstance(items[0], LTPage):
@@ -70,11 +70,15 @@ def determine_row_positions(*items: Union[LTContainer, Tuple], boundaries: Tuple
     unique_row_positions = merge_overlapping_positions(*row_positions)
 
     # Before returning row positions, sort them from top to bottom
-    sorted_row_positions = sorted(unique_row_positions, key=lambda col: col[0], reverse=True)
+    sorted_row_positions = sorted(
+        unique_row_positions, key=lambda col: col[0], reverse=True
+    )
     return sorted_row_positions
 
 
-def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List[Tuple]:
+def _columns_from_layout(
+    items: Iterable[LTItem], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns from LTItems.
 
     Columns are discovered by analyzing LTItems in order of decreasing primacy:
@@ -93,7 +97,9 @@ def _columns_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> L
     column_positions = set()
     # If columns have borders the page will contain LTRect objects
     # Even partial borders will allow us to determine column positions
-    if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.height > 1 and r.width < 1):
+    if rectangles := select_rectangles(
+        items, cb.within(boundaries), lambda r: r.height > 1 and r.width < 1
+    ):
         positions = _column_positions_from_rectangles(rectangles)
         _update_positions(column_positions, positions)
 
@@ -147,13 +153,17 @@ def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List
 
     # If rows have borders the page will contain LTRect objects
     # However, we won't determine row positions with only partial borders
-    if rectangles := select_rectangles(items, cb.within(boundaries), lambda r: r.width > 1 and r.height < 1):
+    if rectangles := select_rectangles(
+        items, cb.within(boundaries), lambda r: r.width > 1 and r.height < 1
+    ):
         positions = _row_positions_from_rectangles(rectangles)
         _update_positions(row_positions, positions)
 
     # Otherwise, we'll need to rely on textlines to estimate row positions
     # Without borders, these dimensions may not account for padding
-    if textlines := select_lines(items, cb.within(boundaries), cb.text.not_blank(), lambda l: l.height > 1):
+    if textlines := select_lines(
+        items, cb.within(boundaries), cb.text.not_blank(), lambda l: l.height > 1
+    ):
         positions = _row_positions_from_textlines(textlines)
         _update_positions(row_positions, positions)
 
@@ -169,13 +179,19 @@ def _rows_from_layout(items: Iterable[LTItem], boundaries: Tuple = None) -> List
     return positions
 
 
-def _column_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_rectangles(
+    rectangles: Iterable[LTRect], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns from LTRect objects.
 
     This function is designed to help determine the positions of
     columns and should not be imported into other modules."""
     rectangle_positions = reduce_positions([], rectangles)
-    horizontal_positions = [itemgetter(0, 2)(pos) for pos in rectangle_positions if cb.within(boundaries)(pos)]
+    horizontal_positions = [
+        itemgetter(0, 2)(pos)
+        for pos in rectangle_positions
+        if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping columns.
     unique_positions = merge_overlapping_positions(*horizontal_positions)
@@ -184,18 +200,26 @@ def _column_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: 
     sorted_positions = sorted(unique_positions, key=lambda col: col[0])
 
     # Pair positions into tuples representing the left and right sides of each column
-    column_positions = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
+    column_positions = _pair_positions(
+        list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2
+    )
 
     return column_positions
 
 
-def _row_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tuple = None) -> List[Tuple]:
+def _row_positions_from_rectangles(
+    rectangles: Iterable[LTRect], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of rows from LTRect objects.
 
     This function is designed to help determine the positions of
     rows and should not be imported into other modules."""
     rectangle_positions = reduce_positions([], rectangles)
-    vertical_positions = [itemgetter(1, 3)(pos) for pos in rectangle_positions if cb.within(boundaries)(pos)]
+    vertical_positions = [
+        itemgetter(1, 3)(pos)
+        for pos in rectangle_positions
+        if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping rows
     unique_positions = merge_overlapping_positions(*vertical_positions)
@@ -204,18 +228,24 @@ def _row_positions_from_rectangles(rectangles: Iterable[LTRect], boundaries: Tup
     sorted_positions = sorted(unique_positions, key=lambda row: row[0])
 
     # Pair positions into tuples representing the bottom and top of row
-    row_positions = _pair_positions(list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2)
+    row_positions = _pair_positions(
+        list(itertools.chain.from_iterable(sorted_positions))[1:-1], 2
+    )
 
     return row_positions
 
 
-def _column_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_textboxes(
+    textboxes: Iterable[LTTextBox], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns from LTTextBox objects.
 
     This function is designed to help determine the positions of
     columns and should not be imported into other modules."""
     textbox_positions = reduce_positions([], textboxes)
-    horizontal_positions = [itemgetter(0, 2)(pos) for pos in textbox_positions if cb.within(boundaries)(pos)]
+    horizontal_positions = [
+        itemgetter(0, 2)(pos) for pos in textbox_positions if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping columns
     unique_positions = merge_overlapping_positions(*horizontal_positions)
@@ -226,13 +256,17 @@ def _column_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries:
     return sorted_positions
 
 
-def _row_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tuple = None) -> List:
+def _row_positions_from_textboxes(
+    textboxes: Iterable[LTTextBox], boundaries: Tuple = None
+) -> List:
     """Determine the positions of rows from LTTextBox objects.
 
     This function is designed to help determine the positions of
     rows and should not be imported into other modules."""
     textbox_positions = reduce_positions([], textboxes)
-    vertical_positions = [itemgetter(1, 3)(pos) for pos in textbox_positions if cb.within(boundaries)(pos)]
+    vertical_positions = [
+        itemgetter(1, 3)(pos) for pos in textbox_positions if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping rows
     unique_positions = merge_overlapping_positions(*vertical_positions)
@@ -243,13 +277,19 @@ def _row_positions_from_textboxes(textboxes: Iterable[LTTextBox], boundaries: Tu
     return sorted_positions
 
 
-def _column_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
+def _column_positions_from_textlines(
+    lines: Iterable[LTTextLine], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns from LTTextLine objects.
 
     This function is designed to help determine the positions of
     columns and should not be imported into other modules."""
     textline_positions = reduce_positions([], lines)
-    horizontal_positions = [itemgetter(0, 2)(pos) for pos in textline_positions if cb.within(boundaries)(pos)]
+    horizontal_positions = [
+        itemgetter(0, 2)(pos)
+        for pos in textline_positions
+        if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping columns
     unique_positions = merge_overlapping_positions(*horizontal_positions)
@@ -260,13 +300,19 @@ def _column_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tu
     return sorted_positions
 
 
-def _row_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple = None) -> List[Tuple]:
+def _row_positions_from_textlines(
+    lines: Iterable[LTTextLine], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of rows from LTTextLine objects.
 
     This function is designed to help determine the positions of
     rows and should not be imported into other modules."""
     textline_positions = reduce_positions([], lines)
-    vertical_positions = [itemgetter(1, 3)(pos) for pos in textline_positions if cb.within(boundaries)(pos)]
+    vertical_positions = [
+        itemgetter(1, 3)(pos)
+        for pos in textline_positions
+        if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping rows
     unique_positions = merge_overlapping_positions(*vertical_positions)
@@ -277,12 +323,16 @@ def _row_positions_from_textlines(lines: Iterable[LTTextLine], boundaries: Tuple
     return sorted_positions
 
 
-def _columns_from_positions(positions: Iterable[Tuple], boundaries: Tuple = None) -> List[Tuple]:
+def _columns_from_positions(
+    positions: Iterable[Tuple], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of columns from tuples of item positions.
 
     This function is designed to help determine the positions of
     columns and should not be imported into other modules."""
-    horizontal_positions = [itemgetter(0, 2)(pos) for pos in positions if cb.within(boundaries)(pos)]
+    horizontal_positions = [
+        itemgetter(0, 2)(pos) for pos in positions if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping columns
     unique_positions = merge_overlapping_positions(*horizontal_positions)
@@ -293,12 +343,16 @@ def _columns_from_positions(positions: Iterable[Tuple], boundaries: Tuple = None
     return sorted_positions
 
 
-def _rows_from_positions(positions: Iterable[Tuple], boundaries: Tuple = None) -> List[Tuple]:
+def _rows_from_positions(
+    positions: Iterable[Tuple], boundaries: Tuple = None
+) -> List[Tuple]:
     """Determine the positions of rows from tuples of item positions.
 
     This function is designed to help determine the positions of
     rows and should not be imported into other modules."""
-    vertical_positions = [itemgetter(1, 3)(pos) for pos in positions if cb.within(boundaries)(pos)]
+    vertical_positions = [
+        itemgetter(1, 3)(pos) for pos in positions if cb.within(boundaries)(pos)
+    ]
 
     # Iterate over positions and remove overlapping rows
     unique_positions = merge_overlapping_positions(*vertical_positions)
@@ -322,11 +376,15 @@ def _update_positions(found: set, new: list) -> set:
 
 def _fit_columns_to_margins(columns, margins):
     """Expand left and right sides of columns to fit margins."""
-    expanded_columns = [
-        (margins[0], columns[0][1]),  # Left-most column
-        *columns[1:-1],               # Middle columns
-        (columns[-1][0], margins[1])  # Right-most column
-    ] if len(columns) > 1 else [margins]
+    expanded_columns = (
+        [
+            (margins[0], columns[0][1]),  # Left-most column
+            *columns[1:-1],  # Middle columns
+            (columns[-1][0], margins[1]),  # Right-most column
+        ]
+        if len(columns) > 1
+        else [margins]
+    )
     return expanded_columns
 
 
@@ -340,20 +398,24 @@ def _adjust_column_padding_based_on_alignment(columns, items):
     expanded_columns = []
     for idx, col in enumerate(columns):
         # Calculate left side position
-        if alignments[idx] == 'left' or idx == 0:
+        if alignments[idx] == "left" or idx == 0:
             left_side = col[0]
         else:
-            left_side = columns[idx - 1][0] + 0.5 \
-                if alignments[idx - 1] == 'right' \
-                    else (columns[idx - 1][1] + col[0]) / 2
+            left_side = (
+                columns[idx - 1][0] + 0.5
+                if alignments[idx - 1] == "right"
+                else (columns[idx - 1][1] + col[0]) / 2
+            )
 
         # Calculate right side position
-        if alignments[idx] == 'right' or idx == len(columns) - 1:
+        if alignments[idx] == "right" or idx == len(columns) - 1:
             right_side = col[1]
         else:
-            right_side = columns[idx + 1][0] - 0.5 \
-                if alignments[idx + 1] == 'left' \
-                    else (col[1] + columns[idx + 1][0]) / 2
+            right_side = (
+                columns[idx + 1][0] - 0.5
+                if alignments[idx + 1] == "left"
+                else (col[1] + columns[idx + 1][0]) / 2
+            )
 
         position = (left_side, right_side)
         expanded_columns.append(position)
@@ -371,20 +433,24 @@ def _adjust_row_padding_based_on_alignment(rows, items):
     expanded_rows = []
     for idx, row in enumerate(rows):
         # Calculate top position
-        if alignments[idx] == 'top' or idx == 0:
+        if alignments[idx] == "top" or idx == 0:
             top = row[1]
         else:
-            top = rows[idx - 1][0] - 0.5 \
-                if alignments[idx - 1] == 'bottom' \
-                    else (row[1] + rows[idx - 1][0]) / 2
+            top = (
+                rows[idx - 1][0] - 0.5
+                if alignments[idx - 1] == "bottom"
+                else (row[1] + rows[idx - 1][0]) / 2
+            )
 
         # Calculate bottom position
-        if alignments[idx] == 'bottom' or idx == len(rows) - 1:
+        if alignments[idx] == "bottom" or idx == len(rows) - 1:
             bottom = row[0]
         else:
-            bottom = rows[idx + 1][1] + 0.5 \
-                if alignments[idx + 1] == 'top' \
-                    else (rows[idx + 1][1] + row[0]) / 2
+            bottom = (
+                rows[idx + 1][1] + 0.5
+                if alignments[idx + 1] == "top"
+                else (rows[idx + 1][1] + row[0]) / 2
+            )
 
         position = (bottom, top)
         expanded_rows.append(position)
@@ -393,8 +459,7 @@ def _adjust_row_padding_based_on_alignment(rows, items):
 
 
 def _pair_positions(iterable, n, fillvalue=None):
-    """
-    Group positions from a list into pairs.
+    """Group positions from a list into pairs.
 
     Based on the 'grouper' recipe from
     https://docs.python.org/3/library/itertools.html#itertools-recipes

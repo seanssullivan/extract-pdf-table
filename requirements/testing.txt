@@ -1,0 +1,4 @@
+# Testing requirements
+-r base.txt
+coverage
+pytest

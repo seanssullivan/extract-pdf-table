@@ -1,0 +1,5 @@
+# Development requirements
+-r testing.txt
+mypy
+sphinx
+wheel
